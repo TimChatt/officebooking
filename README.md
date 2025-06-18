@@ -20,6 +20,16 @@ npm install
 Copy `.env.example` to `.env` and update the Postgres connection string and
 Auth0 settings (domain, audience, client ID).
 
+Copy `.env.example` to `.env` and update the Postgres connection string.
+The file also contains Auth0 settings used for authentication:
+
+- `AUTH0_DOMAIN` – your Auth0 domain
+- `AUTH0_AUDIENCE` – the audience for the API
+- `AUTH0_CLIENT_ID` – the client ID for the SPA
+- `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_AUDIENCE` and `VITE_AUTH0_CLIENT_ID` are
+  consumed by the React app and should match the server values.
+
+
 ### Start the Development Servers
 
 In separate terminals, run:
@@ -43,6 +53,16 @@ Booking creation logs an event in an analytics table which can be queried via `/
 The frontend lists desks and bookings, includes a form to create new bookings,
 and an edit mode that lets admins drag desks to new positions. It also displays
 daily and weekly booking counts fetched from the analytics endpoints.
+
+The API exposes `/health`, `/desks`, and `/bookings` for listing and creating records.
+
+Desks can also be updated via `PUT /desks/:id`.
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions.
+
+The frontend fetches desks from the API and lists them on the page.
+
+
 
 ## Deployment
 

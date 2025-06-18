@@ -24,6 +24,12 @@ async function init() {
     CREATE TABLE IF NOT EXISTS bookings (
       id SERIAL PRIMARY KEY,
       user_id VARCHAR(255) NOT NULL,
+      desk_id INTEGER REFERENCES desks(id),
+      start_time TIMESTAMPTZ NOT NULL,
+      end_time TIMESTAMPTZ NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS desk_blocks (
+      id SERIAL PRIMARY KEY,
 
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,

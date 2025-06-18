@@ -29,7 +29,6 @@ The file also contains Auth0 settings used for authentication:
 - `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_AUDIENCE` and `VITE_AUTH0_CLIENT_ID` are
   consumed by the React app and should match the server values.
 
-
 ### Start the Development Servers
 
 In separate terminals, run:
@@ -47,6 +46,18 @@ npm run dev:web
 This will start the API server on http://localhost:3000 and the React app on http://localhost:3001.
 
 The API exposes `/health`, `/desks`, `/bookings`, and analytics endpoints.
+
+Desks can be updated via `PUT /desks/:id` and blocked for date ranges using
+`POST /desks/:id/blocks`.
+Blocks can be removed with `DELETE /desks/:deskId/blocks/:blockId`.
+Creating or updating data requires a valid Auth0 access token.
+Bookings will fail if the selected desk is blocked for the requested time.
+Booking creation logs an event in an analytics table which can be queried via `/analytics/daily` and `/analytics/weekly`.
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions. It also displays
+daily and weekly booking counts fetched from the analytics endpoints and graphs
+them using Recharts.
+=======
 Desks can also be updated via `PUT /desks/:id`.
 Creating or updating data requires a valid Auth0 access token.
 Booking creation logs an event in an analytics table which can be queried via `/analytics/daily` and `/analytics/weekly`.
@@ -61,7 +72,6 @@ The frontend lists desks and bookings, includes a form to create new bookings,
 and an edit mode that lets admins drag desks to new positions.
 
 The frontend fetches desks from the API and lists them on the page.
-
 
 
 ## Deployment

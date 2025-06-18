@@ -1,4 +1,14 @@
 let auth0Client;
+const {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+} = window.Recharts;
 
 async function configureAuth(setAuthState) {
   const res = await fetch('../auth_config.json');
@@ -52,6 +62,7 @@ function App() {
       setDailyStats(await dailyRes.json());
       const weeklyRes = await apiFetch('http://localhost:3000/analytics/weekly');
       setWeeklyStats(await weeklyRes.json());
+
   const dragRef = React.useRef(null);
 
   async function loadData() {
@@ -90,7 +101,6 @@ function App() {
     dragRef.current = null;
     const desk = desks.find((d) => d.id === id);
     if (desk) {
-
       await apiFetch(`http://localhost:3000/desks/${id}`, {
 
       await fetch(`http://localhost:3000/desks/${id}`, {
@@ -117,6 +127,7 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: auth.user ? auth.user.sub : 'anonymous',
+
     const res = await fetch('http://localhost:3000/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -242,6 +253,37 @@ function App() {
     ),
     React.createElement('h2', null, 'Daily Utilization'),
     React.createElement(
+      LineChart,
+      {
+        width: 600,
+        height: 200,
+        data: dailyStats.map((d) => ({
+          day: new Date(d.day).toLocaleDateString(),
+          bookings: d.bookings,
+        })),
+      },
+      React.createElement(CartesianGrid, { stroke: '#ccc' }),
+      React.createElement(XAxis, { dataKey: 'day' }),
+      React.createElement(YAxis, null),
+      React.createElement(Tooltip, null),
+      React.createElement(Line, { type: 'monotone', dataKey: 'bookings', stroke: '#8884d8' })
+    ),
+    React.createElement('h2', null, 'Weekly Utilization'),
+    React.createElement(
+      BarChart,
+      {
+        width: 600,
+        height: 200,
+        data: weeklyStats.map((w) => ({
+          week: new Date(w.week).toLocaleDateString(),
+          bookings: w.bookings,
+        })),
+      },
+      React.createElement(CartesianGrid, { stroke: '#ccc' }),
+      React.createElement(XAxis, { dataKey: 'week' }),
+      React.createElement(YAxis, null),
+      React.createElement(Tooltip, null),
+      React.createElement(Bar, { dataKey: 'bookings', fill: '#82ca9d' })
       'ul',
       null,
       dailyStats.map((d, idx) =>
@@ -262,7 +304,6 @@ function App() {
           { key: idx },
           `${new Date(w.week).toLocaleDateString()}: ${w.bookings}`
         )
-=======
 
   React.useEffect(() => {
     fetch('http://localhost:3000/desks')

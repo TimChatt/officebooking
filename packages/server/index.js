@@ -3,51 +3,48 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
-const express = require('express');
 
 const { pool, init } = require('./db');
-const app = express();
 
-app.use(express.json());
-app.use(cors());
+function createApp() {
+  const app = express();
 
-const app = express();
+  app.use(express.json());
+  app.use(cors());
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+  });
 
-app.get('/desks', async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM desks ORDER BY id');
-  res.json(rows);
-});
+  app.get('/desks', async (req, res) => {
+    const { rows } = await pool.query('SELECT * FROM desks ORDER BY id');
+    res.json(rows);
+  });
 
+  app.post('/desks', async (req, res) => {
+    const { x, y, width, height, status = 'available' } = req.body;
+    if (
+      typeof x !== 'number' ||
+      typeof y !== 'number' ||
+      typeof width !== 'number' ||
+      typeof height !== 'number'
+    ) {
+      return res.status(400).json({ error: 'invalid desk fields' });
+    }
+    const { rows } = await pool.query(
+      `INSERT INTO desks (x, y, width, height, status)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [x, y, width, height, status]
+    );
+    res.status(201).json(rows[0]);
+  });
 
-app.post('/desks', async (req, res) => {
-  const { x, y, width, height, status = 'available' } = req.body;
-  if (
-    typeof x !== 'number' ||
-    typeof y !== 'number' ||
-    typeof width !== 'number' ||
-    typeof height !== 'number'
-  ) {
-    return res.status(400).json({ error: 'invalid desk fields' });
-  }
-  const { rows } = await pool.query(
-    `INSERT INTO desks (x, y, width, height, status)
-     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [x, y, width, height, status]
-  );
-  res.status(201).json(rows[0]);
-});
-
-app.get('/bookings', async (req, res) => {
-  const { rows } = await pool.query(
-    'SELECT * FROM bookings ORDER BY start_time DESC'
-  );
-  res.json(rows);
-});
+  app.get('/bookings', async (req, res) => {
+    const { rows } = await pool.query(
+      'SELECT * FROM bookings ORDER BY start_time DESC'
+    );
+    res.json(rows);
+  });
 
 app.post('/bookings', async (req, res) => {
   const { user_id, desk_id, start_time, end_time } = req.body;
@@ -62,25 +59,29 @@ app.post('/bookings', async (req, res) => {
   if (conflicts.length) {
     return res.status(409).json({ error: 'desk already booked' });
   }
-  const { rows } = await pool.query(
-    `INSERT INTO bookings (user_id, desk_id, start_time, end_time)
-     VALUES ($1, $2, $3, $4) RETURNING *`,
-    [user_id, desk_id, start_time, end_time]
-  );
-  res.status(201).json(rows[0]);
-});
-
-const PORT = process.env.PORT || 3000;
-init().then(() => {
-  app.listen(PORT, () => {
-    console.log(`API server listening on port ${PORT}`);
+    const { rows } = await pool.query(
+      `INSERT INTO bookings (user_id, desk_id, start_time, end_time)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [user_id, desk_id, start_time, end_time]
+    );
+    res.status(201).json(rows[0]);
   });
-}).catch((err) => {
-  console.error('Failed to initialize DB', err);
-  process.exit(1);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`API server listening on port ${PORT}`);
+  return app;
+}
 
-});
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  init()
+    .then(() => {
+      createApp().listen(PORT, () => {
+        console.log(`API server listening on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('Failed to initialize DB', err);
+      process.exit(1);
+    });
+}
+
+module.exports = { createApp };

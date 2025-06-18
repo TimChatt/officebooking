@@ -18,6 +18,13 @@ npm install
 ```
 
 Copy `.env.example` to `.env` and update the Postgres connection string.
+The file also contains Auth0 settings used for authentication:
+
+- `AUTH0_DOMAIN` – your Auth0 domain
+- `AUTH0_AUDIENCE` – the audience for the API
+- `AUTH0_CLIENT_ID` – the client ID for the SPA
+- `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_AUDIENCE` and `VITE_AUTH0_CLIENT_ID` are
+  consumed by the React app and should match the server values.
 
 ### Start the Development Servers
 

@@ -4,6 +4,9 @@ const app = express();
 
 app.use(express.json());
 
+
+const app = express();
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -42,4 +45,9 @@ init().then(() => {
 }).catch((err) => {
   console.error('Failed to initialize DB', err);
   process.exit(1);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`API server listening on port ${PORT}`);
+
 });

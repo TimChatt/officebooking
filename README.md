@@ -36,7 +36,9 @@ npm run dev:web
 This will start the API server on http://localhost:3000 and the React app on http://localhost:3001.
 
 The API exposes `/health`, `/desks`, and `/bookings` for listing and creating records.
-
+Desks can also be updated via `PUT /desks/:id`.
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions.
 Desks can also be updated via `PUT /desks/:id`.
 The frontend lists desks and bookings, includes a form to create new bookings,
 and an edit mode that lets admins drag desks to new positions.

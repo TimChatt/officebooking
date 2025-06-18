@@ -8,6 +8,7 @@ Set `DATABASE_URL` to a Postgres connection string. The server will create the
 required tables on startup.
 
 
+- `PUT /desks/:id` – update desk coordinates or status
 Basic Express server exposing a `/health` endpoint.
 
 ## Environment

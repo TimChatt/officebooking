@@ -30,6 +30,17 @@ async function init() {
     );
     CREATE TABLE IF NOT EXISTS desk_blocks (
       id SERIAL PRIMARY KEY,
+      desk_id INTEGER REFERENCES desks(id),
+      start_time TIMESTAMPTZ NOT NULL,
+      end_time TIMESTAMPTZ NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      auth0_id VARCHAR(255) UNIQUE NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      role VARCHAR(20) DEFAULT 'user'
+    );
+=======
 
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -83,6 +94,86 @@ async function logEvent(event_type, details = {}) {
   );
 }
 
+async function ensureUser(auth0_id, email) {
+  const { rows } = await pool.query(
+    'SELECT * FROM users WHERE auth0_id=$1',
+    [auth0_id]
+  );
+  if (rows.length) return rows[0];
+  const { rows: inserted } = await pool.query(
+    'INSERT INTO users (auth0_id, email) VALUES ($1, $2) RETURNING *',
+    [auth0_id, email]
+  );
+  return inserted[0];
+}
+
+async function getUserRole(auth0_id) {
+  const { rows } = await pool.query(
+    'SELECT role FROM users WHERE auth0_id=$1',
+    [auth0_id]
+  );
+  return rows.length ? rows[0].role : null;
+}
+
+async function getUsers() {
+  const { rows } = await pool.query('SELECT id, auth0_id, email, role FROM users ORDER BY id');
+  return rows;
+}
+
+async function updateUserRole(id, role) {
+  const { rows } = await pool.query(
+    'UPDATE users SET role=$1 WHERE id=$2 RETURNING *',
+    [role, id]
+  );
+  return rows[0];
+}
+
+async function updateBooking(id, fields) {
+  const keys = [];
+  const values = [];
+  let idx = 1;
+  for (const [k, v] of Object.entries(fields)) {
+    keys.push(`${k}=$${idx++}`);
+    values.push(v);
+  }
+  if (!keys.length) return null;
+  values.push(id);
+  const { rows } = await pool.query(
+    `UPDATE bookings SET ${keys.join(', ')} WHERE id=$${idx} RETURNING *`,
+    values
+  );
+  return rows[0];
+}
+
+async function deleteBooking(id) {
+  const { rows } = await pool.query(
+    'DELETE FROM bookings WHERE id=$1 RETURNING *',
+    [id]
+  );
+  return rows[0];
+}
+
+async function deleteDesk(id) {
+  const { rows } = await pool.query(
+    'DELETE FROM desks WHERE id=$1 RETURNING *',
+    [id]
+  );
+  return rows[0];
+}
+
+module.exports = {
+  pool,
+  init,
+  logEvent,
+  ensureUser,
+  getUserRole,
+  getUsers,
+  updateUserRole,
+  updateBooking,
+  deleteBooking,
+  deleteDesk,
+};
+=======
 module.exports = { pool, init, logEvent };
 
     CREATE TABLE IF NOT EXISTS analytics (

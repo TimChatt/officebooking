@@ -10,6 +10,9 @@ const {
   Bar,
 } = window.Recharts;
 
+const { Calendar } = window.FullCalendar;
+const dayGridPlugin = window.dayGridPlugin;
+
 async function configureAuth(setAuthState) {
   const res = await fetch('../auth_config.json');
   const config = await res.json();
@@ -40,6 +43,14 @@ function App() {
   const [auth, setAuth] = React.useState({ loading: true, isAuthenticated: false, user: null });
   const [dailyStats, setDailyStats] = React.useState([]);
   const [weeklyStats, setWeeklyStats] = React.useState([]);
+  const [forecast, setForecast] = React.useState([]);
+  const [alerts, setAlerts] = React.useState([]);
+  const dragRef = React.useRef(null);
+  const calRef = React.useRef(null);
+  const [recLoading, setRecLoading] = React.useState(false);
+  const [userInfo, setUserInfo] = React.useState(null);
+  const [users, setUsers] = React.useState([]);
+  const [showAdmin, setShowAdmin] = React.useState(false);
   const dragRef = React.useRef(null);
 
   async function apiFetch(url, options = {}) {
@@ -62,6 +73,59 @@ function App() {
       setDailyStats(await dailyRes.json());
       const weeklyRes = await apiFetch('http://localhost:3000/analytics/weekly');
       setWeeklyStats(await weeklyRes.json());
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadForecast() {
+    try {
+      const res = await fetch('http://localhost:8000/forecast');
+      if (res.ok) {
+        const data = await res.json();
+        setForecast(data.forecast);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadUserInfo() {
+    if (!auth.isAuthenticated) return;
+    const res = await apiFetch('http://localhost:3000/users/me', { method: 'POST' });
+    if (res.ok) {
+      const data = await res.json();
+      setUserInfo(data);
+      return data;
+    }
+  }
+
+  async function loadUsers() {
+    if (!auth.isAuthenticated) return;
+    const res = await apiFetch('http://localhost:3000/users');
+    if (res.ok) {
+      const data = await res.json();
+      setUsers(data);
+    }
+  }
+
+  async function updateRole(id, role) {
+    await apiFetch(`http://localhost:3000/users/${id}/role`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role }),
+    });
+    loadUsers();
+  }
+
+  async function loadAlerts() {
+    try {
+      const res = await fetch('http://localhost:3000/alerts');
+      if (res.ok) {
+        const data = await res.json();
+        setAlerts(data.alerts);
+      }
+=======
 
   const dragRef = React.useRef(null);
   function startDrag(desk, e) {
@@ -152,6 +216,19 @@ function App() {
     }
   }
 
+  async function loadRecommendation() {
+    setRecLoading(true);
+    try {
+      const res = await apiFetch('http://localhost:3000/recommendation');
+      if (res.ok) {
+        const desk = await res.json();
+        setDeskId(String(desk.id));
+      }
+    } finally {
+      setRecLoading(false);
+    }
+  }
+
   function startDrag(desk, e) {
     if (!edit) return;
     dragRef.current = {
@@ -187,6 +264,65 @@ function App() {
     }
   }
 
+  async function addDesk() {
+    const res = await apiFetch('http://localhost:3000/desks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ x: 10, y: 10, width: 50, height: 50 }),
+    });
+    if (res.ok) {
+      const desk = await res.json();
+      setDesks((ds) => ds.concat(desk));
+    }
+  }
+
+  async function removeDesk(id) {
+    const res = await apiFetch(`http://localhost:3000/desks/${id}`, {
+      method: 'DELETE',
+    });
+    if (res.ok) {
+      setDesks((ds) => ds.filter((d) => d.id !== id));
+    }
+  }
+
+  React.useEffect(() => {
+    configureAuth(setAuth).then(() => {
+      loadData();
+      loadForecast();
+      loadAlerts();
+      loadUserInfo().then((info) => {
+        if (info && info.role === 'admin') {
+          loadUsers();
+        }
+      });
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!calRef.current) return;
+    if (!calRef.current._calendar) {
+      calRef.current._calendar = new Calendar(calRef.current, {
+        plugins: [dayGridPlugin],
+        initialView: 'dayGridMonth',
+        selectable: true,
+        select: (info) => {
+          setStart(info.startStr);
+          setEnd(info.endStr);
+        },
+      });
+      calRef.current._calendar.render();
+    }
+    const cal = calRef.current._calendar;
+    cal.removeAllEvents();
+    bookings.forEach((b) => {
+      cal.addEvent({
+        title: `Desk ${b.desk_id}`,
+        start: b.start_time,
+        end: b.end_time,
+      });
+    });
+  }, [bookings]);
+=======
   React.useEffect(() => {
     configureAuth(setAuth).then(() => {
       loadData();
@@ -248,6 +384,28 @@ function App() {
       { onClick: () => setEdit(!edit) },
       edit ? 'Done Editing' : 'Edit Layout'
     ),
+    edit &&
+      React.createElement(
+        'button',
+        { onClick: addDesk, style: { marginLeft: '0.5em' } },
+        'Add Desk'
+      ),
+    userInfo && userInfo.role === 'admin' &&
+      React.createElement(
+        'button',
+        { onClick: () => {
+            setShowAdmin(!showAdmin);
+            if (!showAdmin) loadUsers();
+          } },
+        showAdmin ? 'Close Admin' : 'Admin Panel'
+      ),
+      React.createElement('div', { ref: calRef, style: { maxWidth: 600, marginBottom: '1em' } }),
+      React.createElement(
+        'div',
+        {
+          style: {
+            position: 'relative',
+=======
     React.createElement(
       'div',
       {
@@ -280,6 +438,20 @@ function App() {
               userSelect: 'none',
             },
           },
+          edit &&
+            React.createElement(
+              'button',
+              {
+                onClick: () => removeDesk(d.id),
+                style: {
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                },
+              },
+              'x'
+            ),
+    
           d.id
         )
       )
@@ -301,6 +473,16 @@ function App() {
             `Desk ${d.id}`
           )
         )
+      ),
+      React.createElement(
+        'button',
+        {
+          type: 'button',
+          onClick: loadRecommendation,
+          disabled: recLoading,
+          style: { marginLeft: '0.5em' },
+        },
+        recLoading ? '...' : 'Get Recommended Desk'
       ),
       React.createElement('input', {
         type: 'datetime-local',
@@ -360,6 +542,111 @@ function App() {
       React.createElement(YAxis, null),
       React.createElement(Tooltip, null),
       React.createElement(Bar, { dataKey: 'bookings', fill: '#82ca9d' })
+    ),
+    React.createElement('h2', null, 'Monthly Heatmap'),
+    (() => {
+      const counts = {};
+      dailyStats.forEach((d) => {
+        counts[new Date(d.day).toDateString()] = d.bookings;
+      });
+      const today = new Date();
+      const start = new Date();
+      start.setDate(today.getDate() - 34);
+      const cells = [];
+      let max = 0;
+      for (let i = 0; i < 35; i++) {
+        const day = new Date(start);
+        day.setDate(start.getDate() + i);
+        const count = counts[day.toDateString()] || 0;
+        if (count > max) max = count;
+        cells.push({ day, count });
+      }
+      function colorFor(c) {
+        if (c === 0) return '#eee';
+        const level = c / (max || 1);
+        if (level > 0.75) return '#196127';
+        if (level > 0.5) return '#239a3b';
+        if (level > 0.25) return '#7bc96f';
+        return '#c6e48b';
+      }
+      return React.createElement(
+        'div',
+        {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, 20px)',
+            gap: '2px',
+            marginBottom: '1em',
+          },
+        },
+        cells.map((c, idx) =>
+          React.createElement('div', {
+            key: idx,
+            title: `${c.day.toLocaleDateString()}: ${c.count} bookings`,
+            style: {
+              width: '20px',
+              height: '20px',
+              backgroundColor: colorFor(c.count),
+            },
+          })
+        )
+      );
+    })(),
+    React.createElement('h2', null, 'Forecast (Next 7 Days)'),
+    React.createElement(
+      'ul',
+      null,
+      forecast.map((f, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(f.day).toLocaleDateString()}: ${f.bookings} bookings`
+        )
+      )
+    ),
+    alerts.length > 0 &&
+      React.createElement(
+        React.Fragment,
+        null,
+        React.createElement('h2', null, 'Alerts'),
+        React.createElement(
+          'ul',
+          null,
+          alerts.map((a, idx) =>
+            React.createElement(
+              'li',
+              { key: idx },
+              `${new Date(a.day).toLocaleDateString()} high demand (${a.bookings} bookings)`
+            )
+          )
+        )
+    showAdmin &&
+      React.createElement(
+        'div',
+        null,
+        React.createElement('h2', null, 'User Roles'),
+        React.createElement(
+          'ul',
+          null,
+          users.map((u) =>
+            React.createElement(
+              'li',
+              { key: u.id },
+              `${u.email}: `,
+              React.createElement(
+                'select',
+                {
+                  value: u.role,
+                  onChange: (e) => updateRole(u.id, e.target.value),
+                },
+                React.createElement('option', { value: 'user' }, 'user'),
+                React.createElement('option', { value: 'admin' }, 'admin')
+              )
+            )
+          )
+        )
+      ),
+=======
       'ul',
       null,
       dailyStats.map((d, idx) =>

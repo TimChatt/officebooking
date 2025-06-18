@@ -6,7 +6,8 @@
   ],
   "scripts": {
     "dev:server": "npm --workspace packages/server run dev",
-    "dev:web": "npm --workspace packages/web run dev"
+    "dev:web": "npm --workspace packages/web run dev",
+    "dev:forecast": "python packages/forecast/app.py"
 
   "scripts": {
    "build:web":    "npm --workspace=packages/web run build",

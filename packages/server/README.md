@@ -12,6 +12,7 @@ The following Auth0 variables must also be configured:
 - `AUTH0_AUDIENCE`
 
 
+- `/forecast` (from the forecast service) – predicted bookings for the next 7 days
 Basic Express server exposing a `/health` endpoint.
 
 ## Environment

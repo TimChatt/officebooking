@@ -23,6 +23,11 @@ Auth0 settings (domain, audience, client ID).
 Copy `.env.example` to `.env` and update the Postgres connection string.
 The file also contains Auth0 settings used for authentication:
 
+## Forecast Service
+
+A separate FastAPI microservice provides booking demand forecasts. It queries recent bookings from the database and returns predicted counts for the next 7 days from the `/forecast` endpoint.
+
+
 - `AUTH0_DOMAIN` – your Auth0 domain
 - `AUTH0_AUDIENCE` – the audience for the API
 - `AUTH0_CLIENT_ID` – the client ID for the SPA

@@ -7,6 +7,7 @@ Toggle the "Edit" button to drag desks around and the new positions will be save
 The page also displays daily and weekly booking counts from the analytics endpoints
 and shows them in simple charts powered by Recharts.
 Desk blocks created by admins will prevent bookings during the blocked time.
+The app can also display predictions from the `/forecast` service.
 =======
 The page also displays daily and weekly booking counts from the analytics endpoints.
 =======

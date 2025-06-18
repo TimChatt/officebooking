@@ -12,6 +12,7 @@ The following Auth0 variables must also be configured:
 - `AUTH0_AUDIENCE`
 
 
+- `PUT /desks/:id` – update desk coordinates or status
 Basic Express server exposing a `/health` endpoint.
 
 ## Environment

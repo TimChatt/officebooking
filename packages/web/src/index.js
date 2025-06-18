@@ -64,6 +64,82 @@ function App() {
       setWeeklyStats(await weeklyRes.json());
 
   const dragRef = React.useRef(null);
+  function startDrag(desk, e) {
+    if (!edit) return;
+    dragRef.current = {
+      id: desk.id,
+      offsetX: e.clientX - desk.x,
+      offsetY: e.clientY - desk.y,
+    };
+  }
+
+  function handleMove(e) {
+    if (!dragRef.current) return;
+    const { id, offsetX, offsetY } = dragRef.current;
+    setDesks((ds) =>
+      ds.map((d) =>
+        d.id === id ? { ...d, x: e.clientX - offsetX, y: e.clientY - offsetY } : d
+      )
+    );
+  }
+
+  async function endDrag() {
+    if (!dragRef.current) return;
+    const { id } = dragRef.current;
+    dragRef.current = null;
+    const desk = desks.find((d) => d.id === id);
+    if (desk) {
+      await fetch(`http://localhost:3000/desks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(desk),
+      });
+    }
+  }
+
+    { onMouseMove: handleMove, onMouseUp: endDrag },
+    React.createElement(
+      'button',
+      { onClick: () => setEdit(!edit) },
+      edit ? 'Done Editing' : 'Edit Layout'
+    ),
+    React.createElement(
+      'div',
+      {
+        style: {
+          position: 'relative',
+          width: 600,
+          height: 400,
+          border: '1px solid #ccc',
+          marginBottom: '1em',
+        },
+      },
+      desks.map((d) =>
+        React.createElement(
+          'div',
+          {
+            key: d.id,
+            onMouseDown: (e) => startDrag(d, e),
+            style: {
+              position: 'absolute',
+              left: d.x,
+              top: d.y,
+              width: d.width,
+              height: d.height,
+              backgroundColor: '#def',
+              border: '1px solid #333',
+              cursor: edit ? 'move' : 'default',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              userSelect: 'none',
+            },
+          },
+          d.id
+        )
+      )
+    ),
+  const dragRef = React.useRef(null);
 
   async function loadData() {
     try {

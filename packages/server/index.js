@@ -25,6 +25,28 @@ function createApp() {
 
 const { pool, init } = require('./db');
 
+app.put('/desks/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  const { x, y, width, height, status = 'available' } = req.body;
+  if (
+    typeof x !== 'number' ||
+    typeof y !== 'number' ||
+    typeof width !== 'number' ||
+    typeof height !== 'number'
+  ) {
+    return res.status(400).json({ error: 'invalid desk fields' });
+  }
+  const { rows } = await pool.query(
+    `UPDATE desks SET x=$1, y=$2, width=$3, height=$4, status=$5
+     WHERE id=$6 RETURNING *`,
+    [x, y, width, height, status, id]
+  );
+  if (!rows.length) {
+    return res.status(404).json({ error: 'desk not found' });
+  }
+  res.json(rows[0]);
+});
+
 const app = express();
 app.use(express.json());
 app.use(cors());

@@ -66,7 +66,9 @@ and an edit mode that lets admins drag desks to new positions. It also displays
 daily and weekly booking counts fetched from the analytics endpoints.
 
 The API exposes `/health`, `/desks`, and `/bookings` for listing and creating records.
-
+Desks can also be updated via `PUT /desks/:id`.
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions.
 Desks can also be updated via `PUT /desks/:id`.
 The frontend lists desks and bookings, includes a form to create new bookings,
 and an edit mode that lets admins drag desks to new positions.

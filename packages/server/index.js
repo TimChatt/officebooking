@@ -5,6 +5,31 @@ const app = express();
 app.use(express.json());
 
 
+app.post('/desks', async (req, res) => {
+  const { x, y, width, height, status = 'available' } = req.body;
+  if (
+    typeof x !== 'number' ||
+    typeof y !== 'number' ||
+    typeof width !== 'number' ||
+    typeof height !== 'number'
+  ) {
+    return res.status(400).json({ error: 'invalid desk fields' });
+  }
+  const { rows } = await pool.query(
+    `INSERT INTO desks (x, y, width, height, status)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [x, y, width, height, status]
+  );
+  res.status(201).json(rows[0]);
+});
+
+app.get('/bookings', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT * FROM bookings ORDER BY start_time DESC'
+  );
+  res.json(rows);
+});
+
 const app = express();
 
 app.get('/health', (req, res) => {

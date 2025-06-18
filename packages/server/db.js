@@ -31,6 +31,12 @@ async function init() {
       start_time TIMESTAMPTZ NOT NULL,
       end_time TIMESTAMPTZ NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS analytics (
+      id SERIAL PRIMARY KEY,
+      desk_id INTEGER REFERENCES desks(id),
+      event_type VARCHAR(50) NOT NULL,
+      timestamp TIMESTAMPTZ DEFAULT NOW()
+    );
   `);
 }
 

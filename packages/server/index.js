@@ -2,6 +2,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const express = require('express');
 const cors = require('cors');
+
 const { pool, init } = require('./db');
 
 const app = express();
@@ -42,6 +43,27 @@ app.post('/desks', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
+app.put('/desks/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { x, y, width, height, status } = req.body;
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: 'invalid id' });
+  }
+  const { rows } = await pool.query(
+    `UPDATE desks SET x=$1, y=$2, width=$3, height=$4, status=$5
+     WHERE id=$6 RETURNING *`,
+    [x, y, width, height, status, id]
+  );
+  if (!rows.length) {
+    return res.status(404).json({ error: 'desk not found' });
+  }
+  await pool.query(
+    `INSERT INTO analytics (desk_id, event_type) VALUES ($1, 'desk_moved')`,
+    [id]
+  );
+  res.json(rows[0]);
+});
+
 app.get('/bookings', async (req, res) => {
   const { rows } = await pool.query(
     'SELECT * FROM bookings ORDER BY start_time DESC'
@@ -67,7 +89,19 @@ app.post('/bookings', async (req, res) => {
      VALUES ($1, $2, $3, $4) RETURNING *`,
     [user_id, desk_id, start_time, end_time]
   );
+  await pool.query(
+    `INSERT INTO analytics (desk_id, event_type) VALUES ($1, 'booking_created')`,
+    [desk_id]
+  );
   res.status(201).json(rows[0]);
+});
+
+
+app.get('/analytics', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT desk_id, event_type, timestamp FROM analytics ORDER BY timestamp DESC'
+  );
+  res.json(rows);
 });
 
 const admin = express.Router();

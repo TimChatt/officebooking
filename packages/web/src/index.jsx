@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import UtilizationChart from './UtilizationChart';
 
 function DeskList() {
   const [desks, setDesks] = React.useState([]);
@@ -59,6 +60,12 @@ function AdminDesks() {
 }
 
 function App() {
+
+  return (
+    <div>
+      <h1>Office Booking</h1>
+      <UtilizationChart />
+
   if (window.location.pathname.startsWith('/admin')) {
     return <AdminDesks />;
   }
@@ -67,6 +74,7 @@ function App() {
     <div>
       <h1>Office Booking</h1>
       <DeskList />
+
     </div>
   );
 }
@@ -74,3 +82,4 @@ function App() {
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);
+

@@ -28,6 +28,8 @@ function App() {
   const [message, setMessage] = React.useState('');
   const [edit, setEdit] = React.useState(false);
   const [auth, setAuth] = React.useState({ loading: true, isAuthenticated: false, user: null });
+  const [dailyStats, setDailyStats] = React.useState([]);
+  const [weeklyStats, setWeeklyStats] = React.useState([]);
   const dragRef = React.useRef(null);
 
   async function apiFetch(url, options = {}) {
@@ -46,6 +48,10 @@ function App() {
       setDesks(await desksRes.json());
       const bookingsRes = await apiFetch('http://localhost:3000/bookings');
       setBookings(await bookingsRes.json());
+      const dailyRes = await apiFetch('http://localhost:3000/analytics/daily');
+      setDailyStats(await dailyRes.json());
+      const weeklyRes = await apiFetch('http://localhost:3000/analytics/weekly');
+      setWeeklyStats(await weeklyRes.json());
     } catch (err) {
       console.error(err);
     }
@@ -213,6 +219,30 @@ function App() {
           'li',
           { key: b.id },
           `Desk ${b.desk_id} from ${new Date(b.start_time).toLocaleString()} to ${new Date(b.end_time).toLocaleString()}`
+        )
+      )
+    ),
+    React.createElement('h2', null, 'Daily Utilization'),
+    React.createElement(
+      'ul',
+      null,
+      dailyStats.map((d, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(d.day).toLocaleDateString()}: ${d.bookings}`
+        )
+      )
+    ),
+    React.createElement('h2', null, 'Weekly Utilization'),
+    React.createElement(
+      'ul',
+      null,
+      weeklyStats.map((w, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(w.week).toLocaleDateString()}: ${w.bookings}`
         )
       )
     )

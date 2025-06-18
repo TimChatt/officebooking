@@ -41,7 +41,8 @@ Desks can also be updated via `PUT /desks/:id`.
 Creating or updating data requires a valid Auth0 access token.
 Booking creation logs an event in an analytics table which can be queried via `/analytics/daily` and `/analytics/weekly`.
 The frontend lists desks and bookings, includes a form to create new bookings,
-and an edit mode that lets admins drag desks to new positions.
+and an edit mode that lets admins drag desks to new positions. It also displays
+daily and weekly booking counts fetched from the analytics endpoints.
 
 ## Deployment
 

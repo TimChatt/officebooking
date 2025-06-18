@@ -1,0 +1,19 @@
+name: Regenerate Lockfile
+on:
+  workflow_dispatch:    # lets you trigger it manually from GitHub
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: true  # so we can push commits
+      - name: Install & regen lockfile
+        run: npm install
+      - name: Commit regenerated lockfile
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: GitHub Actions
+          author_email: actions@github.com
+          message: chore: regenerate package-lock.json
+          add: package-lock.json

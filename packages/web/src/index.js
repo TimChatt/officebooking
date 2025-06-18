@@ -62,6 +62,15 @@ function App() {
       setDailyStats(await dailyRes.json());
       const weeklyRes = await apiFetch('http://localhost:3000/analytics/weekly');
       setWeeklyStats(await weeklyRes.json());
+
+  const dragRef = React.useRef(null);
+
+  async function loadData() {
+    try {
+      const desksRes = await fetch('http://localhost:3000/desks');
+      setDesks(await desksRes.json());
+      const bookingsRes = await fetch('http://localhost:3000/bookings');
+      setBookings(await bookingsRes.json());
     } catch (err) {
       console.error(err);
     }
@@ -93,6 +102,8 @@ function App() {
     const desk = desks.find((d) => d.id === id);
     if (desk) {
       await apiFetch(`http://localhost:3000/desks/${id}`, {
+
+      await fetch(`http://localhost:3000/desks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(desk),
@@ -104,6 +115,8 @@ function App() {
     configureAuth(setAuth).then(() => {
       loadData();
     });
+
+    loadData();
   }, []);
 
   async function createBooking(e) {
@@ -114,6 +127,12 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: auth.user ? auth.user.sub : 'anonymous',
+
+    const res = await fetch('http://localhost:3000/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: 'anonymous',
         desk_id: Number(deskId),
         start_time: start,
         end_time: end,
@@ -265,6 +284,44 @@ function App() {
       React.createElement(YAxis, null),
       React.createElement(Tooltip, null),
       React.createElement(Bar, { dataKey: 'bookings', fill: '#82ca9d' })
+      'ul',
+      null,
+      dailyStats.map((d, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(d.day).toLocaleDateString()}: ${d.bookings}`
+        )
+      )
+    ),
+    React.createElement('h2', null, 'Weekly Utilization'),
+    React.createElement(
+      'ul',
+      null,
+      weeklyStats.map((w, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(w.week).toLocaleDateString()}: ${w.bookings}`
+        )
+
+  React.useEffect(() => {
+    fetch('http://localhost:3000/desks')
+      .then((res) => res.json())
+      .then(setDesks)
+      .catch(console.error);
+  }, []);
+
+  return React.createElement(
+    'div',
+    null,
+    React.createElement('h1', null, 'Office Booking'),
+    React.createElement(
+      'ul',
+      null,
+      desks.map((d) =>
+        React.createElement('li', { key: d.id }, `Desk ${d.id}: (${d.x}, ${d.y})`)
+      )
     )
   );
 }

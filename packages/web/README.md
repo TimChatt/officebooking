@@ -7,3 +7,37 @@ Toggle the "Edit" button to drag desks around and the new positions will be save
 The page also displays daily and weekly booking counts from the analytics endpoints
 and shows them in simple charts powered by Recharts.
 Desk blocks created by admins will prevent bookings during the blocked time.
+=======
+The page also displays daily and weekly booking counts from the analytics endpoints.
+=======
+
+Simple React frontend served with the `serve` package.
+On load it fetches desks from the API at `http://localhost:3000/desks` and displays them.
+
+React frontend built with [Vite](https://vitejs.dev/).
+
+## Development
+
+From this directory run:
+
+```bash
+npm run dev
+```
+
+This starts the Vite development server on http://localhost:3001.
+
+## Build
+
+```bash
+npm run build
+```
+
+The optimized output will be placed in the `dist/` folder. You can preview the
+production build with:
+
+```bash
+npm start
+```
+
+which serves the contents of `dist/` on the same port.
+

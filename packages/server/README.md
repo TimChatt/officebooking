@@ -1,11 +1,20 @@
 # Server
 
+
 Express server exposing health and booking endpoints. It reads environment variables from `.env` using `dotenv` and allows CORS for the web app.
 
 ## Environment
 
 Set `DATABASE_URL` to a Postgres connection string. The server will create the
 required tables on startup.
+
+Basic Express server exposing a `/health` endpoint.
+
+## Environment
+
+Set `DATABASE_URL` in a `.env` file to a Postgres connection string. The server
+uses [dotenv](https://github.com/motdotla/dotenv) to load environment
+variables and will create the required tables on startup.
 
 ## Endpoints
 

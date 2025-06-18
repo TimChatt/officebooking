@@ -1,6 +1,7 @@
 {
   "name": "web",
   "version": "0.1.0",
+
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
@@ -10,5 +11,19 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "serve": "^14.2.0"
+  "main": "src/index.jsx",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview --port 3001"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5",
+    "@vitejs/plugin-react": "^4.5.2"
   }
 }

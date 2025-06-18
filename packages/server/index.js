@@ -1,12 +1,18 @@
+
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
+const express = require('express');
+
 const { pool, init } = require('./db');
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+const app = express();
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -16,6 +22,7 @@ app.get('/desks', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM desks ORDER BY id');
   res.json(rows);
 });
+
 
 app.post('/desks', async (req, res) => {
   const { x, y, width, height, status = 'available' } = req.body;
@@ -71,4 +78,9 @@ init().then(() => {
 }).catch((err) => {
   console.error('Failed to initialize DB', err);
   process.exit(1);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`API server listening on port ${PORT}`);
+
 });

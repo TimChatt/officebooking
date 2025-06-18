@@ -38,6 +38,7 @@ This will start the API server on http://localhost:3000 and the React app on htt
 The API exposes `/health`, `/desks`, and `/bookings` for listing and creating records.
 The frontend fetches desks from the API and lists them on the page.
 
+
 ## Deployment
 
 GitHub Actions can build and test each package. Deployment to Railway can be configured from workflows under .github/workflows.

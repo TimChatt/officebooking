@@ -1,18 +1,12 @@
 {
   "scripts": {
--   "build:web": "npm --workspace packages/web run build",
--   "build:server": "npm --workspace packages/server run build",
--   "build": "npm run build:server && npm run build:web",
--   "start:server": "npm --workspace packages/server run start",
--   "start:web": "npm --workspace packages/web run start",
--   "start": "npm --workspace packages/server run dev"
-+   "build:web":    "npm --workspace=packages/web run build",
-+   "build:server": "npm --workspace=packages/server run build",
-+   "build":        "npm run build:server && npm run build:web",
-+
-+   "start:server": "npm --workspace=packages/server run start",
-+   "start:web":    "npm --workspace=packages/web run start",
-+   "start":        "concurrently \"npm run start:server\" \"npm run start:web\""
+   "build:web":    "npm --workspace=packages/web run build",
+   "build:server": "npm --workspace=packages/server run build",
+   "build":        "npm run build:server && npm run build:web",
+    
+   "start:server": "npm --workspace=packages/server run start",
+   "start:web":    "npm --workspace=packages/web run start",
+   "start":        "concurrently \"npm run start:server\" \"npm run start:web\""
   },
   "devDependencies": {
     "concurrently": "^7.0.0"

@@ -1,4 +1,5 @@
 # Web
 
 Simple React frontend served with the `serve` package.
-On load it fetches desks from the API at `http://localhost:3000/desks` and displays them.
+It fetches desks and bookings from the API and provides a small form to create new bookings.
+The API base URL is `http://localhost:3000` during development.

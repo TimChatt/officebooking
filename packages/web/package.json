@@ -1,0 +1,18 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "serve -s public -l 3001",
+    "test:e2e": "cypress run"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "serve": "^14.2.0"
+  },
+  "devDependencies": {
+    "cypress": "^13.3.0"
+  }
+}

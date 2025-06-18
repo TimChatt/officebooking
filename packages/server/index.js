@@ -1,18 +1,13 @@
-
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
-const express = require('express');
 
 const { pool, init } = require('./db');
-const app = express();
 
+const app = express();
 app.use(express.json());
 app.use(cors());
-
-const app = express();
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -22,7 +17,6 @@ app.get('/desks', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM desks ORDER BY id');
   res.json(rows);
 });
-
 
 app.post('/desks', async (req, res) => {
   const { x, y, width, height, status = 'available' } = req.body;
@@ -40,6 +34,27 @@ app.post('/desks', async (req, res) => {
     [x, y, width, height, status]
   );
   res.status(201).json(rows[0]);
+});
+
+app.put('/desks/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { x, y, width, height, status } = req.body;
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ error: 'invalid id' });
+  }
+  const { rows } = await pool.query(
+    `UPDATE desks SET x=$1, y=$2, width=$3, height=$4, status=$5
+     WHERE id=$6 RETURNING *`,
+    [x, y, width, height, status, id]
+  );
+  if (!rows.length) {
+    return res.status(404).json({ error: 'desk not found' });
+  }
+  await pool.query(
+    `INSERT INTO analytics (desk_id, event_type) VALUES ($1, 'desk_moved')`,
+    [id]
+  );
+  res.json(rows[0]);
 });
 
 app.get('/bookings', async (req, res) => {
@@ -67,20 +82,28 @@ app.post('/bookings', async (req, res) => {
      VALUES ($1, $2, $3, $4) RETURNING *`,
     [user_id, desk_id, start_time, end_time]
   );
+  await pool.query(
+    `INSERT INTO analytics (desk_id, event_type) VALUES ($1, 'booking_created')`,
+    [desk_id]
+  );
   res.status(201).json(rows[0]);
 });
 
-const PORT = process.env.PORT || 3000;
-init().then(() => {
-  app.listen(PORT, () => {
-    console.log(`API server listening on port ${PORT}`);
-  });
-}).catch((err) => {
-  console.error('Failed to initialize DB', err);
-  process.exit(1);
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`API server listening on port ${PORT}`);
-
+app.get('/analytics', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT desk_id, event_type, timestamp FROM analytics ORDER BY timestamp DESC'
+  );
+  res.json(rows);
 });
+
+const PORT = process.env.PORT || 3000;
+init()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`API server listening on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to initialize DB', err);
+    process.exit(1);
+  });

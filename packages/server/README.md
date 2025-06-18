@@ -19,3 +19,5 @@ The following Auth0 variables must also be configured:
 - `PUT /desks/:id` – update desk coordinates or status (auth required)
 - `GET /bookings` – list bookings
 - `POST /bookings` – create a booking (auth required)
+- `GET /analytics/daily` – daily booking counts
+- `GET /analytics/weekly` – weekly booking counts

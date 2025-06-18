@@ -2,7 +2,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const express = require('express');
 const cors = require('cors');
-const { pool, init } = require('./db');
+const { pool, init, logEvent } = require('./db');
 const { checkJwt } = require('./auth');
 const app = express();
 
@@ -83,7 +83,18 @@ app.post('/bookings', checkJwt, async (req, res) => {
      VALUES ($1, $2, $3, $4) RETURNING *`,
     [user_id, desk_id, start_time, end_time]
   );
+  await logEvent('booking_created', { user_id, desk_id, start_time, end_time });
   res.status(201).json(rows[0]);
+});
+
+app.get('/analytics/daily', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM daily_utilization');
+  res.json(rows);
+});
+
+app.get('/analytics/weekly', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM weekly_utilization');
+  res.json(rows);
 });
 
 const PORT = process.env.PORT || 3000;

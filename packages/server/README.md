@@ -12,6 +12,8 @@ The following Auth0 variables must also be configured:
 - `AUTH0_AUDIENCE`
 
 
+- `POST /desks/:id/blocks` – block a desk for a time range (auth required)
+- `DELETE /desks/:deskId/blocks/:blockId` – remove a block (auth required)
 Basic Express server exposing a `/health` endpoint.
 
 ## Environment

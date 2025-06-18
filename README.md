@@ -20,7 +20,10 @@ npm install
 Copy `.env.example` to `.env` and update the Postgres connection string and
 Auth0 settings (domain, audience, client ID).
 
-Copy `.env.example` to `.env` and update the Postgres connection string.
+Desks can be updated via `PUT /desks/:id` and blocked for date ranges using
+`POST /desks/:id/blocks`.
+Blocks can be removed with `DELETE /desks/:deskId/blocks/:blockId`.
+Bookings will fail if the selected desk is blocked for the requested time.
 The file also contains Auth0 settings used for authentication:
 
 - `AUTH0_DOMAIN` – your Auth0 domain

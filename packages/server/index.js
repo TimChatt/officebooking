@@ -33,6 +33,40 @@ function requireAdmin(req, res, next) {
   if (req.headers['x-user-role'] !== 'admin') {
     return res.status(403).json({ error: 'admin only' });
   }
+app.post('/desks/:id/blocks', checkJwt, async (req, res) => {
+  const deskId = Number(req.params.id);
+  const { start_time, end_time } = req.body;
+  if (!start_time || !end_time) {
+    return res.status(400).json({ error: 'missing fields' });
+  }
+  const { rows } = await pool.query(
+    `INSERT INTO desk_blocks (desk_id, start_time, end_time)
+     VALUES ($1, $2, $3) RETURNING *`,
+    [deskId, start_time, end_time]
+  );
+  res.status(201).json(rows[0]);
+});
+
+app.delete('/desks/:deskId/blocks/:blockId', checkJwt, async (req, res) => {
+  const { deskId, blockId } = req.params;
+  const { rows } = await pool.query(
+    'DELETE FROM desk_blocks WHERE id=$1 AND desk_id=$2 RETURNING *',
+    [blockId, deskId]
+  );
+  if (!rows.length) {
+    return res.status(404).json({ error: 'block not found' });
+  }
+  res.json(rows[0]);
+});
+
+  const { rows: blockConflicts } = await pool.query(
+    `SELECT 1 FROM desk_blocks
+     WHERE desk_id=$1 AND NOT ($3 <= start_time OR $2 >= end_time)`,
+    [desk_id, start_time, end_time]
+  );
+  if (blockConflicts.length) {
+    return res.status(409).json({ error: 'desk blocked for that time' });
+  }
   next();
 }
 

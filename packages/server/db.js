@@ -1,6 +1,12 @@
 const { Pool } = require('pg');
 
 
+    CREATE TABLE IF NOT EXISTS desk_blocks (
+      id SERIAL PRIMARY KEY,
+      desk_id INTEGER REFERENCES desks(id),
+      start_time TIMESTAMPTZ NOT NULL,
+      end_time TIMESTAMPTZ NOT NULL
+    );
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL environment variable is not set.');
   process.exit(1);

@@ -1,11 +1,9 @@
 const { Pool } = require('pg');
 
-
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL environment variable is not set.');
   process.exit(1);
 }
-
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -21,9 +19,14 @@ async function init() {
       height INTEGER NOT NULL,
       status VARCHAR(20) DEFAULT 'available'
     );
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      role VARCHAR(20) DEFAULT 'user'
+    );
     CREATE TABLE IF NOT EXISTS bookings (
       id SERIAL PRIMARY KEY,
-      user_id VARCHAR(255) NOT NULL,
+      user_id INTEGER REFERENCES users(id),
       desk_id INTEGER REFERENCES desks(id),
       start_time TIMESTAMPTZ NOT NULL,
       end_time TIMESTAMPTZ NOT NULL

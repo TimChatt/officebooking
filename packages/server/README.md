@@ -16,6 +16,8 @@ The following Auth0 variables must also be configured:
 - `TWILIO_AUTH_TOKEN` (used with Twilio SID)
 - `TWILIO_FROM` (the Twilio number sending texts)
 - `ALERT_PHONE` (number that should receive SMS alerts)
+- `OPENAI_API_KEY` (optional, enables the `/chatbot` endpoint)
+- `POST /chatbot` – ask a question and get a response from the OpenAI API
 =======
 
 

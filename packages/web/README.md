@@ -19,6 +19,9 @@ dress configured in `ALERT_EMAIL`.
 If Twilio settings are provided, the same alerts are sent via SMS to `ALERT_PHONE`.
 Admins can open an admin panel to manage user roles when logged in.
 
+A small chatbot box lets users ask questions. Messages are sent to the `/chatbot`
+endpoint, which responds using the OpenAI API if configured.
+
 Toggle the "Edit" button to drag desks around and the new positions will be saved via the API.
 
 Simple React frontend served with the `serve` package.

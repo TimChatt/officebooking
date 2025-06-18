@@ -25,6 +25,8 @@ async function configureAuth(setAuthState) {
   if (window.location.search.includes('code=')) {
     await auth0Client.handleRedirectCallback();
     window.history.replaceState({}, document.title, '/');
+  const [chatInput, setChatInput] = React.useState('');
+  const [chatLog, setChatLog] = React.useState([]);
   }
 
   const isAuthenticated = await auth0Client.isAuthenticated();
@@ -92,6 +94,28 @@ function App() {
 
   async function loadUserInfo() {
     if (!auth.isAuthenticated) return;
+  async function sendChat(e) {
+    e.preventDefault();
+    const msg = chatInput.trim();
+    if (!msg) return;
+    setChatLog((l) => l.concat({ from: 'user', text: msg }));
+    setChatInput('');
+    try {
+      const res = await apiFetch('http://localhost:3000/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.reply)
+          setChatLog((l) => l.concat({ from: 'bot', text: data.reply }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
     const res = await apiFetch('http://localhost:3000/users/me', { method: 'POST' });
     if (res.ok) {
       const data = await res.json();
@@ -510,6 +534,37 @@ function App() {
       )
     ),
     React.createElement('h2', null, 'Daily Utilization'),
+    React.createElement('h2', null, 'Assistant'),
+    React.createElement(
+      'div',
+      {
+        style: {
+          maxWidth: 600,
+          border: '1px solid #ccc',
+          padding: '0.5em',
+          height: 150,
+          overflowY: 'auto',
+          marginBottom: '0.5em',
+        },
+      },
+      chatLog.map((m, idx) =>
+        React.createElement(
+          'div',
+          { key: idx },
+          `${m.from === 'user' ? 'You' : 'Bot'}: ${m.text}`
+        )
+      )
+    ),
+    React.createElement(
+      'form',
+      { onSubmit: sendChat, style: { maxWidth: 600 } },
+      React.createElement('input', {
+        value: chatInput,
+        onChange: (e) => setChatInput(e.target.value),
+        style: { width: '80%' },
+      }),
+      React.createElement('button', { type: 'submit' }, 'Send')
+    )
     React.createElement(
       LineChart,
       {

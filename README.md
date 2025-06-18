@@ -19,6 +19,12 @@ npm install
 
 Copy `.env.example` to `.env` and update the Postgres connection string and
 Auth0 settings (domain, audience, client ID).
+Optionally set `OPENAI_API_KEY` to enable the chatbot assistant.
+
+The frontend also includes a simple chatbot widget powered by the OpenAI API.
+Admins can ask common questions like how to book a desk. The backend exposes a
+`POST /chatbot` endpoint that proxies requests to OpenAI when
+`OPENAI_API_KEY` is configured.
 
 Copy `.env.example` to `.env` and update the Postgres connection string.
 The file also contains Auth0 settings used for authentication:

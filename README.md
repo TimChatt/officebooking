@@ -17,6 +17,8 @@ From the repository root run:
 npm install
 ```
 
+Copy `.env.example` to `.env` and update the Postgres connection string.
+
 ### Start the Development Servers
 
 In separate terminals, run:
@@ -32,6 +34,8 @@ npm run dev:web
 ```
 
 This will start the API server on http://localhost:3000 and the React app on http://localhost:3001.
+
+The API exposes `/health`, `/desks`, and `/bookings`.
 
 ## Deployment
 

@@ -1,3 +1,24 @@
+let auth0Client;
+
+async function configureAuth(setAuthState) {
+  const res = await fetch('../auth_config.json');
+  const config = await res.json();
+  auth0Client = await createAuth0Client({
+    domain: config.domain,
+    clientId: config.clientId,
+    audience: config.audience,
+  });
+
+  if (window.location.search.includes('code=')) {
+    await auth0Client.handleRedirectCallback();
+    window.history.replaceState({}, document.title, '/');
+  }
+
+  const isAuthenticated = await auth0Client.isAuthenticated();
+  const user = isAuthenticated ? await auth0Client.getUser() : null;
+  setAuthState({ isAuthenticated, user, loading: false });
+}
+
 function App() {
   const [desks, setDesks] = React.useState([]);
   const [bookings, setBookings] = React.useState([]);
@@ -6,6 +27,31 @@ function App() {
   const [end, setEnd] = React.useState('');
   const [message, setMessage] = React.useState('');
   const [edit, setEdit] = React.useState(false);
+  const [auth, setAuth] = React.useState({ loading: true, isAuthenticated: false, user: null });
+  const [dailyStats, setDailyStats] = React.useState([]);
+  const [weeklyStats, setWeeklyStats] = React.useState([]);
+  const dragRef = React.useRef(null);
+
+  async function apiFetch(url, options = {}) {
+    if (auth.isAuthenticated) {
+      const token = await auth0Client.getTokenSilently();
+      options.headers = Object.assign({}, options.headers, {
+        Authorization: `Bearer ${token}`,
+      });
+    }
+    return fetch(url, options);
+  }
+
+  async function loadData() {
+    try {
+      const desksRes = await apiFetch('http://localhost:3000/desks');
+      setDesks(await desksRes.json());
+      const bookingsRes = await apiFetch('http://localhost:3000/bookings');
+      setBookings(await bookingsRes.json());
+      const dailyRes = await apiFetch('http://localhost:3000/analytics/daily');
+      setDailyStats(await dailyRes.json());
+      const weeklyRes = await apiFetch('http://localhost:3000/analytics/weekly');
+      setWeeklyStats(await weeklyRes.json());
   const dragRef = React.useRef(null);
 
   async function loadData() {
@@ -44,6 +90,9 @@ function App() {
     dragRef.current = null;
     const desk = desks.find((d) => d.id === id);
     if (desk) {
+
+      await apiFetch(`http://localhost:3000/desks/${id}`, {
+
       await fetch(`http://localhost:3000/desks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -53,12 +102,21 @@ function App() {
   }
 
   React.useEffect(() => {
+    configureAuth(setAuth).then(() => {
+      loadData();
+    });
+
     loadData();
   }, []);
 
   async function createBooking(e) {
     e.preventDefault();
     setMessage('');
+    const res = await apiFetch('http://localhost:3000/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: auth.user ? auth.user.sub : 'anonymous',
     const res = await fetch('http://localhost:3000/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -85,6 +143,19 @@ function App() {
     'div',
     { onMouseMove: handleMove, onMouseUp: endDrag },
     React.createElement('h1', null, 'Office Booking'),
+    auth.loading
+      ? React.createElement('p', null, 'Loading auth...')
+      : auth.isAuthenticated
+      ? React.createElement(
+          'button',
+          { onClick: () => auth0Client.logout({ returnTo: window.location.origin }) },
+          `Logout (${auth.user.name || auth.user.email})`
+        )
+      : React.createElement(
+          'button',
+          { onClick: () => auth0Client.loginWithRedirect({ redirect_uri: window.location.origin }) },
+          'Login'
+        ),
     React.createElement(
       'button',
       { onClick: () => setEdit(!edit) },
@@ -167,6 +238,31 @@ function App() {
           { key: b.id },
           `Desk ${b.desk_id} from ${new Date(b.start_time).toLocaleString()} to ${new Date(b.end_time).toLocaleString()}`
         )
+      )
+    ),
+    React.createElement('h2', null, 'Daily Utilization'),
+    React.createElement(
+      'ul',
+      null,
+      dailyStats.map((d, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(d.day).toLocaleDateString()}: ${d.bookings}`
+        )
+      )
+    ),
+    React.createElement('h2', null, 'Weekly Utilization'),
+    React.createElement(
+      'ul',
+      null,
+      weeklyStats.map((w, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(w.week).toLocaleDateString()}: ${w.bookings}`
+        )
+=======
 
   React.useEffect(() => {
     fetch('http://localhost:3000/desks')

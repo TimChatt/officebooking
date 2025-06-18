@@ -12,3 +12,4 @@ required tables on startup.
 - `GET /health` – health check
 - `GET /desks` – list all desks
 - `POST /bookings` – create a booking
+

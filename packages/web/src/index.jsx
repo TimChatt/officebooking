@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 
+export function App() {
+  return <h1>Office Booking</h1>;
+}
+
+const container = document.getElementById('root');
+if (container) {
+  const root = createRoot(container);
+  root.render(<App />);
+}
+
 function App() {
   const { loginWithRedirect, logout, isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [desks, setDesks] = useState([]);

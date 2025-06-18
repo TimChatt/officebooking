@@ -1,10 +1,16 @@
+
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+const express = require('express');
+const cors = require('cors');
 require('dotenv').config();
 const express = require('express');
+
 const { pool, init } = require('./db');
 const app = express();
 
 app.use(express.json());
-
+app.use(cors());
 
 const app = express();
 
@@ -14,6 +20,32 @@ app.get('/health', (req, res) => {
 
 app.get('/desks', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM desks ORDER BY id');
+  res.json(rows);
+});
+
+
+app.post('/desks', async (req, res) => {
+  const { x, y, width, height, status = 'available' } = req.body;
+  if (
+    typeof x !== 'number' ||
+    typeof y !== 'number' ||
+    typeof width !== 'number' ||
+    typeof height !== 'number'
+  ) {
+    return res.status(400).json({ error: 'invalid desk fields' });
+  }
+  const { rows } = await pool.query(
+    `INSERT INTO desks (x, y, width, height, status)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [x, y, width, height, status]
+  );
+  res.status(201).json(rows[0]);
+});
+
+app.get('/bookings', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT * FROM bookings ORDER BY start_time DESC'
+  );
   res.json(rows);
 });
 

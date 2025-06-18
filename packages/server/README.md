@@ -1,5 +1,13 @@
 # Server
 
+
+Express server exposing health and booking endpoints. It reads environment variables from `.env` using `dotenv` and allows CORS for the web app.
+
+## Environment
+
+Set `DATABASE_URL` to a Postgres connection string. The server will create the
+required tables on startup.
+
 Basic Express server exposing a `/health` endpoint.
 
 ## Environment
@@ -12,4 +20,6 @@ variables and will create the required tables on startup.
 
 - `GET /health` – health check
 - `GET /desks` – list all desks
+- `POST /desks` – create a desk
+- `GET /bookings` – list bookings
 - `POST /bookings` – create a booking

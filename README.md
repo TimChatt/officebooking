@@ -35,7 +35,9 @@ npm run dev:web
 
 This will start the API server on http://localhost:3000 and the React app on http://localhost:3001.
 
-The API exposes `/health`, `/desks`, and `/bookings`.
+The API exposes `/health`, `/desks`, and `/bookings` for listing and creating records.
+The frontend fetches desks from the API and lists them on the page.
+
 
 ## Deployment
 

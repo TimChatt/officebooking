@@ -1,20 +1,23 @@
+# Phase 1: Dependencies
 FROM node:20 AS deps
-
 WORKDIR /app
 
-# Only copy package.json
-COPY package.json ./
+# Copy all required package files
+COPY package.json package-lock.json ./
 COPY packages ./packages
 
-# Fallback to full install since no lockfile
-RUN npm install
+# Install using the lockfile
+RUN npm ci
 
-# Build your web app
+# Build the web app
 RUN npm run build
 
+# Phase 2: Runtime
 FROM node:20-alpine AS runner
-
 WORKDIR /app
+
+# Copy built output from deps stage
 COPY --from=deps /app /app
 
+# Default start
 CMD ["npm", "start"]

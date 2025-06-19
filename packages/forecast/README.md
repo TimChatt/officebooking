@@ -3,6 +3,12 @@
 Simple FastAPI service that predicts bookings for the next week.
 It connects to the same Postgres database used by the server.
 
+Set `DATABASE_URL` in your environment and install the dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Endpoints
 
 - `GET /forecast` – returns predicted bookings for the next 7 days.

@@ -17,6 +17,26 @@ From the repository root run:
 npm install
 ```
 
+Install the Python dependencies for the forecast service:
+
+```
+pip install -r packages/forecast/requirements.txt
+```
+
+Copy `.env.example` to `.env` and update the Postgres connection string and
+Auth0 settings (domain, audience, client ID).
+Optionally set `OPENAI_API_KEY` to enable the chatbot assistant.
+
+### Seed the Default Floorplan
+
+After configuring the environment, populate the database with a sample layout:
+
+```
+npm --workspace packages/server run seed
+```
+
+This creates two sets of ten rows of eight desks with an aisle between them.
+=======
 Copy `.env.example` to `.env` and update the Postgres connection string and
 Auth0 settings (domain, audience, client ID).
 
@@ -54,12 +74,13 @@ This will start the API server on http://localhost:3000 and the React app on htt
 The API exposes `/health`, `/desks`, `/bookings`, analytics, and recommendation endpoints.
 Bookings can also be updated via `PUT /bookings/:id` or removed with `DELETE /bookings/:id`.
 Desks can be created via `POST /desks`, updated via `PUT /desks/:id`, removed with `DELETE /desks/:id`, and blocked for date ranges using
-=======
+
 This will start the API server on http://localhost:3000 and the React app on http://localhost:3001.
 
 The API exposes `/health`, `/desks`, `/bookings`, and analytics endpoints.
 
 Desks can be updated via `PUT /desks/:id` and blocked for date ranges using
+
 `POST /desks/:id/blocks`.
 Blocks can be removed with `DELETE /desks/:deskId/blocks/:blockId`.
 Creating or updating data requires a valid Auth0 access token.
@@ -83,6 +104,33 @@ them using Recharts. A small heatmap highlights busy days over the last month.
 Predictions from the forecast service are shown as a list of expected bookings
 for the next seven days.
 
+The frontend also includes a simple chatbot widget powered by the OpenAI API.
+Admins can ask common questions like how to book a desk. The backend exposes a
+`POST /chatbot` endpoint that proxies requests to OpenAI when
+`OPENAI_API_KEY` is configured.
+
+### Server Tests
+
+Unit tests for the Express API can be run with:
+
+```bash
+npm --workspace packages/server test
+```
+
+### End-to-End Tests
+
+With the servers running locally you can execute Cypress tests:
+
+```bash
+npm --workspace packages/web run test:e2e
+```
+
+This opens the site at `http://localhost:3001` and runs a small smoke test.
+
+## Forecast Service
+
+A separate FastAPI microservice provides booking demand forecasts. It queries recent bookings from the database and returns predicted counts for the next 7 days from the `/forecast` endpoint.
+=======
 ## Forecast Service
 
 A separate FastAPI microservice provides booking demand forecasts. It queries recent bookings from the database and returns predicted counts for the next 7 days from the `/forecast` endpoint.

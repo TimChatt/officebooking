@@ -1,6 +1,5 @@
 const { Pool } = require('pg');
 
-
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL environment variable is not set.');
   process.exit(1);
@@ -40,7 +39,6 @@ async function init() {
       email VARCHAR(255) NOT NULL,
       role VARCHAR(20) DEFAULT 'user'
     );
-=======
 
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -173,7 +171,7 @@ module.exports = {
   deleteBooking,
   deleteDesk,
 };
-=======
+
 module.exports = { pool, init, logEvent };
 
     CREATE TABLE IF NOT EXISTS analytics (

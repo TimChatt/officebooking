@@ -17,6 +17,8 @@ jobs:
       - run: npm install
       - run: npm --workspace packages/server test --if-present
       - run: npm --workspace packages/web test --if-present
+      - run: npm --workspace packages/web run test:e2e --if-present
+
 
       - run: npm install --prefix packages/server
       - run: npm install --prefix packages/web

@@ -16,6 +16,25 @@ The following Auth0 variables must also be configured:
 - `TWILIO_AUTH_TOKEN` (used with Twilio SID)
 - `TWILIO_FROM` (the Twilio number sending texts)
 - `ALERT_PHONE` (number that should receive SMS alerts)
+- `OPENAI_API_KEY` (optional, enables the `/chatbot` endpoint)
+
+## Seeding Example Desks
+
+Run the seed script to populate a starting layout of two sets of ten rows of
+eight desks:
+
+```
+npm run seed
+```
+
+## Tests
+
+Run unit tests with:
+
+```bash
+npm test
+```
+=======
 =======
 
 
@@ -27,7 +46,6 @@ Basic Express server exposing a `/health` endpoint.
 Set `DATABASE_URL` in a `.env` file to a Postgres connection string. The server
 uses [dotenv](https://github.com/motdotla/dotenv) to load environment
 variables and will create the required tables on startup.
-
 
 ## Endpoints
 
@@ -48,11 +66,13 @@ variables and will create the required tables on startup.
 - `GET /recommendation` – returns the least-used available desk
  - `GET /alerts` – lists forecasted days where bookings may exceed 80% of desks
    (the server emails and texts this list daily if SendGrid or Twilio are configured)
+- `POST /chatbot` – ask a question and get a response from the OpenAI API
 - `POST /users/me` – ensure the current user exists in the DB
 - `GET /users` – list all users (admin only)
 - `PUT /users/:id/role` – change a user's role (admin only)
-=======
-
+- `POST /users/me` – ensure the current user exists in the DB
+- `GET /users` – list all users (admin only)
+- `PUT /users/:id/role` – change a user's role (admin only)
 - `POST /desks/:id/blocks` – block a desk for a time range (auth required)
 - `DELETE /desks/:deskId/blocks/:blockId` – remove a block (auth required)
 

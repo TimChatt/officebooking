@@ -51,7 +51,10 @@ function App() {
   const [userInfo, setUserInfo] = React.useState(null);
   const [users, setUsers] = React.useState([]);
   const [showAdmin, setShowAdmin] = React.useState(false);
+  const [chatInput, setChatInput] = React.useState('');
+  const [chatLog, setChatLog] = React.useState([]);
   const dragRef = React.useRef(null);
+
 
   async function apiFetch(url, options = {}) {
     if (auth.isAuthenticated) {
@@ -118,6 +121,36 @@ function App() {
     loadUsers();
   }
 
+  async function sendChat(e) {
+    e.preventDefault();
+    const msg = chatInput.trim();
+    if (!msg) return;
+    setChatLog((l) => l.concat({ from: 'user', text: msg }));
+    setChatInput('');
+    try {
+      const res = await apiFetch('http://localhost:3000/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.reply)
+          setChatLog((l) => l.concat({ from: 'bot', text: data.reply }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadAlerts() {
+    try {
+      const res = await fetch('http://localhost:3000/alerts');
+      if (res.ok) {
+        const data = await res.json();
+        setAlerts(data.alerts);
+      }
+=======
   async function loadAlerts() {
     try {
       const res = await fetch('http://localhost:3000/alerts');
@@ -322,7 +355,7 @@ function App() {
       });
     });
   }, [bookings]);
-=======
+
   React.useEffect(() => {
     configureAuth(setAuth).then(() => {
       loadData();
@@ -405,7 +438,7 @@ function App() {
         {
           style: {
             position: 'relative',
-=======
+         
     React.createElement(
       'div',
       {
@@ -451,7 +484,6 @@ function App() {
               },
               'x'
             ),
-    
           d.id
         )
       )
@@ -646,7 +678,36 @@ function App() {
           )
         )
       ),
-=======
+    React.createElement('h2', null, 'Assistant'),
+    React.createElement(
+      'div',
+      {
+        style: {
+          maxWidth: 600,
+          border: '1px solid #ccc',
+          padding: '0.5em',
+          height: 150,
+          overflowY: 'auto',
+          marginBottom: '0.5em',
+        },
+      },
+      chatLog.map((m, idx) =>
+        React.createElement(
+          'div',
+          { key: idx },
+          `${m.from === 'user' ? 'You' : 'Bot'}: ${m.text}`
+        )
+      )
+    ),
+    React.createElement(
+      'form',
+      { onSubmit: sendChat, style: { maxWidth: 600 } },
+      React.createElement('input', {
+        value: chatInput,
+        onChange: (e) => setChatInput(e.target.value),
+        style: { width: '80%' },
+      }),
+      React.createElement('button', { type: 'submit' }, 'Send')
       'ul',
       null,
       dailyStats.map((d, idx) =>

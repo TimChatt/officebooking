@@ -1,30 +1,20 @@
-# Stage 1 – Base deps
 FROM node:20 AS deps
 
 WORKDIR /app
 
-# Copy monorepo lockfile and root package
-COPY package.json package-lock.json ./
+# Only copy package.json
+COPY package.json ./
+COPY packages ./packages
 
-# Copy only the workspace package.jsons to install all deps
-COPY packages/web/package.json packages/web/
-COPY packages/server/package.json packages/server/
+# Fallback to full install since no lockfile
+RUN npm install
 
-# ✅ THIS IS WHERE THE ERROR IS OCCURRING — lockfile must be here now
-RUN ls -la && npm ci
+# Build your web app
+RUN npm run build
 
-# Stage 2 – Build phase
-FROM deps AS builder
-WORKDIR /app
-COPY . .
-
-# Optional: build web
-RUN npm run build:web
-
-# Stage 3 – Runtime
-FROM node:18 AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=deps /app /app
 
 CMD ["npm", "start"]

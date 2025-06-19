@@ -1,5 +1,0 @@
-[start]
-cmd = ["npm", "start"]
-
-[phases.build]
-cmds = ["npm --prefix ./ ci", "npm run build"]

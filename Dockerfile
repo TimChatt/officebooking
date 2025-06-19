@@ -1,5 +1,5 @@
 # Stage 1 – Base deps
-FROM node:18 AS deps
+FROM node:20 AS deps
 
 WORKDIR /app
 

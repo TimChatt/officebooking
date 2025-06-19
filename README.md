@@ -36,6 +36,18 @@ npm --workspace packages/server run seed
 ```
 
 This creates two sets of ten rows of eight desks with an aisle between them.
+=======
+Copy `.env.example` to `.env` and update the Postgres connection string and
+Auth0 settings (domain, audience, client ID).
+
+Copy `.env.example` to `.env` and update the Postgres connection string.
+The file also contains Auth0 settings used for authentication:
+
+- `AUTH0_DOMAIN` – your Auth0 domain
+- `AUTH0_AUDIENCE` – the audience for the API
+- `AUTH0_CLIENT_ID` – the client ID for the SPA
+- `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_AUDIENCE` and `VITE_AUTH0_CLIENT_ID` are
+  consumed by the React app and should match the server values.
 
 ### Start the Development Servers
 
@@ -62,6 +74,13 @@ This will start the API server on http://localhost:3000 and the React app on htt
 The API exposes `/health`, `/desks`, `/bookings`, analytics, and recommendation endpoints.
 Bookings can also be updated via `PUT /bookings/:id` or removed with `DELETE /bookings/:id`.
 Desks can be created via `POST /desks`, updated via `PUT /desks/:id`, removed with `DELETE /desks/:id`, and blocked for date ranges using
+
+This will start the API server on http://localhost:3000 and the React app on http://localhost:3001.
+
+The API exposes `/health`, `/desks`, `/bookings`, and analytics endpoints.
+
+Desks can be updated via `PUT /desks/:id` and blocked for date ranges using
+
 `POST /desks/:id/blocks`.
 Blocks can be removed with `DELETE /desks/:deskId/blocks/:blockId`.
 Creating or updating data requires a valid Auth0 access token.
@@ -111,6 +130,33 @@ This opens the site at `http://localhost:3001` and runs a small smoke test.
 ## Forecast Service
 
 A separate FastAPI microservice provides booking demand forecasts. It queries recent bookings from the database and returns predicted counts for the next 7 days from the `/forecast` endpoint.
+=======
+## Forecast Service
+
+A separate FastAPI microservice provides booking demand forecasts. It queries recent bookings from the database and returns predicted counts for the next 7 days from the `/forecast` endpoint.
+
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions. It also displays
+daily and weekly booking counts fetched from the analytics endpoints and graphs
+them using Recharts.
+
+Desks can also be updated via `PUT /desks/:id`.
+Creating or updating data requires a valid Auth0 access token.
+Booking creation logs an event in an analytics table which can be queried via `/analytics/daily` and `/analytics/weekly`.
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions. It also displays
+daily and weekly booking counts fetched from the analytics endpoints.
+
+The API exposes `/health`, `/desks`, and `/bookings` for listing and creating records.
+Desks can also be updated via `PUT /desks/:id`.
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions.
+Desks can also be updated via `PUT /desks/:id`.
+The frontend lists desks and bookings, includes a form to create new bookings,
+and an edit mode that lets admins drag desks to new positions.
+
+The frontend fetches desks from the API and lists them on the page.
+
 
 
 ## Deployment

@@ -9,6 +9,7 @@ const {
   BarChart,
   Bar,
 } = window.Recharts;
+
 const { Calendar } = window.FullCalendar;
 const dayGridPlugin = window.dayGridPlugin;
 
@@ -52,6 +53,8 @@ function App() {
   const [showAdmin, setShowAdmin] = React.useState(false);
   const [chatInput, setChatInput] = React.useState('');
   const [chatLog, setChatLog] = React.useState([]);
+  const dragRef = React.useRef(null);
+
 
   async function apiFetch(url, options = {}) {
     if (auth.isAuthenticated) {
@@ -147,6 +150,100 @@ function App() {
         const data = await res.json();
         setAlerts(data.alerts);
       }
+=======
+  async function loadAlerts() {
+    try {
+      const res = await fetch('http://localhost:3000/alerts');
+      if (res.ok) {
+        const data = await res.json();
+        setAlerts(data.alerts);
+      }
+=======
+
+  const dragRef = React.useRef(null);
+  function startDrag(desk, e) {
+    if (!edit) return;
+    dragRef.current = {
+      id: desk.id,
+      offsetX: e.clientX - desk.x,
+      offsetY: e.clientY - desk.y,
+    };
+  }
+
+  function handleMove(e) {
+    if (!dragRef.current) return;
+    const { id, offsetX, offsetY } = dragRef.current;
+    setDesks((ds) =>
+      ds.map((d) =>
+        d.id === id ? { ...d, x: e.clientX - offsetX, y: e.clientY - offsetY } : d
+      )
+    );
+  }
+
+  async function endDrag() {
+    if (!dragRef.current) return;
+    const { id } = dragRef.current;
+    dragRef.current = null;
+    const desk = desks.find((d) => d.id === id);
+    if (desk) {
+      await fetch(`http://localhost:3000/desks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(desk),
+      });
+    }
+  }
+
+    { onMouseMove: handleMove, onMouseUp: endDrag },
+    React.createElement(
+      'button',
+      { onClick: () => setEdit(!edit) },
+      edit ? 'Done Editing' : 'Edit Layout'
+    ),
+    React.createElement(
+      'div',
+      {
+        style: {
+          position: 'relative',
+          width: 600,
+          height: 400,
+          border: '1px solid #ccc',
+          marginBottom: '1em',
+        },
+      },
+      desks.map((d) =>
+        React.createElement(
+          'div',
+          {
+            key: d.id,
+            onMouseDown: (e) => startDrag(d, e),
+            style: {
+              position: 'absolute',
+              left: d.x,
+              top: d.y,
+              width: d.width,
+              height: d.height,
+              backgroundColor: '#def',
+              border: '1px solid #333',
+              cursor: edit ? 'move' : 'default',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              userSelect: 'none',
+            },
+          },
+          d.id
+        )
+      )
+    ),
+  const dragRef = React.useRef(null);
+
+  async function loadData() {
+    try {
+      const desksRes = await fetch('http://localhost:3000/desks');
+      setDesks(await desksRes.json());
+      const bookingsRes = await fetch('http://localhost:3000/bookings');
+      setBookings(await bookingsRes.json());
     } catch (err) {
       console.error(err);
     }
@@ -191,6 +288,8 @@ function App() {
     const desk = desks.find((d) => d.id === id);
     if (desk) {
       await apiFetch(`http://localhost:3000/desks/${id}`, {
+
+      await fetch(`http://localhost:3000/desks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(desk),
@@ -257,6 +356,14 @@ function App() {
     });
   }, [bookings]);
 
+  React.useEffect(() => {
+    configureAuth(setAuth).then(() => {
+      loadData();
+    });
+
+    loadData();
+  }, []);
+
   async function createBooking(e) {
     e.preventDefault();
     setMessage('');
@@ -265,6 +372,12 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: auth.user ? auth.user.sub : 'anonymous',
+
+    const res = await fetch('http://localhost:3000/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: 'anonymous',
         desk_id: Number(deskId),
         start_time: start,
         end_time: end,
@@ -325,6 +438,12 @@ function App() {
         {
           style: {
             position: 'relative',
+         
+    React.createElement(
+      'div',
+      {
+        style: {
+          position: 'relative',
           width: 600,
           height: 400,
           border: '1px solid #ccc',
@@ -589,6 +708,44 @@ function App() {
         style: { width: '80%' },
       }),
       React.createElement('button', { type: 'submit' }, 'Send')
+      'ul',
+      null,
+      dailyStats.map((d, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(d.day).toLocaleDateString()}: ${d.bookings}`
+        )
+      )
+    ),
+    React.createElement('h2', null, 'Weekly Utilization'),
+    React.createElement(
+      'ul',
+      null,
+      weeklyStats.map((w, idx) =>
+        React.createElement(
+          'li',
+          { key: idx },
+          `${new Date(w.week).toLocaleDateString()}: ${w.bookings}`
+        )
+
+  React.useEffect(() => {
+    fetch('http://localhost:3000/desks')
+      .then((res) => res.json())
+      .then(setDesks)
+      .catch(console.error);
+  }, []);
+
+  return React.createElement(
+    'div',
+    null,
+    React.createElement('h1', null, 'Office Booking'),
+    React.createElement(
+      'ul',
+      null,
+      desks.map((d) =>
+        React.createElement('li', { key: d.id }, `Desk ${d.id}: (${d.x}, ${d.y})`)
+      )
     )
   );
 }

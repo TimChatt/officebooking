@@ -1,43 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
-
-export function App() {
-  return <h1>Office Booking</h1>;
-}
-
-const container = document.getElementById('root');
-if (container) {
-  const root = createRoot(container);
-  root.render(<App />);
-}
-
-function App() {
-  const { loginWithRedirect, logout, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [desks, setDesks] = useState([]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      getAccessTokenSilently().then((token) => {
-        localStorage.setItem('access_token', token);
-        fetch('http://localhost:3000/desks', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((res) => res.json())
-          .then(setDesks)
-          .catch(console.error);
-      });
-    } else {
-      setDesks([]);
-      localStorage.removeItem('access_token');
-    }
-  }, [isAuthenticated, getAccessTokenSilently]);
-
 import UtilizationChart from './UtilizationChart';
 
 function DeskList() {
-  const [desks, setDesks] = React.useState([]);
-  React.useEffect(() => {
+  const [desks, setDesks] = useState([]);
+
+  useEffect(() => {
     fetch('http://localhost:3000/desks')
       .then((res) => res.json())
       .then(setDesks)
@@ -54,15 +23,15 @@ function DeskList() {
 }
 
 function AdminDesks() {
-  const [desks, setDesks] = React.useState([]);
+  const [desks, setDesks] = useState([]);
 
-  const load = React.useCallback(() => {
+  const load = useCallback(() => {
     fetch('http://localhost:3000/desks')
       .then((r) => r.json())
       .then(setDesks);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     load();
   }, [load]);
 
@@ -93,11 +62,25 @@ function AdminDesks() {
 }
 
 function App() {
+  const { loginWithRedirect, logout, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const [desks, setDesks] = useState([]);
 
-  return (
-    <div>
-      <h1>Office Booking</h1>
-      <UtilizationChart />
+  useEffect(() => {
+    if (isAuthenticated) {
+      getAccessTokenSilently().then((token) => {
+        localStorage.setItem('access_token', token);
+        fetch('http://localhost:3000/desks', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((res) => res.json())
+          .then(setDesks)
+          .catch(console.error);
+      });
+    } else {
+      setDesks([]);
+      localStorage.removeItem('access_token');
+    }
+  }, [isAuthenticated, getAccessTokenSilently]);
 
   if (window.location.pathname.startsWith('/admin')) {
     return <AdminDesks />;
@@ -106,6 +89,7 @@ function App() {
   return (
     <div>
       <h1>Office Booking</h1>
+      <UtilizationChart />
       {isAuthenticated ? (
         <>
           <button onClick={() => logout({ returnTo: window.location.origin })}>Log Out</button>
@@ -120,9 +104,7 @@ function App() {
       ) : (
         <button onClick={() => loginWithRedirect()}>Log In</button>
       )}
-
       <DeskList />
-
     </div>
   );
 }
@@ -142,7 +124,3 @@ root.render(
     <App />
   </Auth0Provider>
 );
-
-root.render(<App />);
-
-

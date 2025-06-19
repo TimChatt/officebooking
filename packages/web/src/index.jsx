@@ -111,6 +111,7 @@ function App() {
 
 const container = document.getElementById('root');
 const root = createRoot(container);
+
 root.render(
   <Auth0Provider
     domain={import.meta.env.VITE_AUTH0_DOMAIN}

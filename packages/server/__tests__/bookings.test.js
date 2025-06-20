@@ -1,4 +1,5 @@
 const request = require('supertest');
+jest.mock('../auth', () => ({ checkJwt: (req, res, next) => next() }));
 const { createApp } = require('../index');
 const db = require('../db');
 

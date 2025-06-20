@@ -12,28 +12,6 @@ import {
 } from 'recharts';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import createAuth0Client from '@auth0/auth0-spa-js';
-
-let auth0Client;
-
-async function configureAuth(setAuthState) {
-  const res = await fetch('../auth_config.json');
-  const config = await res.json();
-  auth0Client = await createAuth0Client({
-    domain: config.domain,
-    clientId: config.clientId,
-    audience: config.audience,
-  });
-
-  if (window.location.search.includes('code=')) {
-    await auth0Client.handleRedirectCallback();
-    window.history.replaceState({}, document.title, '/');
-  }
-
-  const isAuthenticated = await auth0Client.isAuthenticated();
-  const user = isAuthenticated ? await auth0Client.getUser() : null;
-  setAuthState({ isAuthenticated, user, loading: false });
-}
 
 export function App() {
   const [desks, setDesks] = useState([]);
@@ -43,7 +21,7 @@ export function App() {
   const [end, setEnd] = useState('');
   const [message, setMessage] = useState('');
   const [edit, setEdit] = useState(false);
-  const [auth, setAuth] = useState({ loading: true, isAuthenticated: false, user: null });
+  const [auth] = useState({ loading: false, isAuthenticated: true, user: { sub: 'anon' } });
   const [dailyStats, setDailyStats] = useState([]);
   const [weeklyStats, setWeeklyStats] = useState([]);
   const [forecast, setForecast] = useState([]);
@@ -58,12 +36,6 @@ export function App() {
   const [chatLog, setChatLog] = useState([]);
 
   async function apiFetch(url, options = {}) {
-    if (auth.isAuthenticated) {
-      const token = await auth0Client.getTokenSilently();
-      options.headers = Object.assign({}, options.headers, {
-        Authorization: `Bearer ${token}`,
-      });
-    }
     return fetch(url, options);
   }
 
@@ -221,15 +193,13 @@ export function App() {
   }
 
   useEffect(() => {
-    configureAuth(setAuth).then(() => {
-      loadData();
-      loadForecast();
-      loadAlerts();
-      loadUserInfo().then((info) => {
-        if (info && info.role === 'admin') {
-          loadUsers();
-        }
-      });
+    loadData();
+    loadForecast();
+    loadAlerts();
+    loadUserInfo().then((info) => {
+      if (info && info.role === 'admin') {
+        loadUsers();
+      }
     });
   }, []);
 
@@ -282,17 +252,7 @@ export function App() {
   return (
     <div onMouseMove={handleMove} onMouseUp={endDrag}>
       <h1>Office Booking</h1>
-      {auth.loading ? (
-        <p>Loading auth...</p>
-      ) : auth.isAuthenticated ? (
-        <button onClick={() => auth0Client.logout({ returnTo: window.location.origin })}>
-          Logout ({auth.user.name || auth.user.email})
-        </button>
-      ) : (
-        <button onClick={() => auth0Client.loginWithRedirect({ redirect_uri: window.location.origin })}>
-          Login
-        </button>
-      )}
+      {/* Authentication removed */}
       <button onClick={() => setEdit(!edit)}>{edit ? 'Done Editing' : 'Edit Layout'}</button>
       {edit && (
         <button onClick={addDesk} style={{ marginLeft: '0.5em' }}>

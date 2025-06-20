@@ -8,7 +8,7 @@ const navItems = [
   { name: "Forecast", icon: <BarChart2 size={18} />, href: "/forecast" },
 ];
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout({ children }) { 
   return (
     <div className="flex h-screen bg-slate-50">
       {/* Sidebar */}

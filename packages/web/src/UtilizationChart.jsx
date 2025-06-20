@@ -5,7 +5,7 @@ export default function UtilizationChart() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/analytics')
+    fetch('/analytics')
       .then((res) => res.json())
       .then((rows) => {
         const counts = {};

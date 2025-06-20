@@ -7,7 +7,7 @@ function DeskList() {
   const [desks, setDesks] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/desks')
+    fetch('/desks')
       .then((res) => res.json())
       .then(setDesks)
       .catch(console.error);
@@ -26,7 +26,7 @@ function AdminDesks() {
   const [desks, setDesks] = useState([]);
 
   const load = useCallback(() => {
-    fetch('http://localhost:3000/desks')
+    fetch('/desks')
       .then((r) => r.json())
       .then(setDesks);
   }, []);
@@ -36,7 +36,7 @@ function AdminDesks() {
   }, [load]);
 
   const action = (id, op) => {
-    fetch(`http://localhost:3000/admin/desks/${id}/${op}`, {
+    fetch(`/admin/desks/${id}/${op}`, {
       method: 'POST',
       headers: { 'x-user-role': 'admin' },
     }).then(load);
@@ -69,7 +69,7 @@ function App() {
     if (isAuthenticated) {
       getAccessTokenSilently().then((token) => {
         localStorage.setItem('access_token', token);
-        fetch('http://localhost:3000/desks', {
+        fetch('/desks', {
           headers: { Authorization: `Bearer ${token}` },
         })
           .then((res) => res.json())

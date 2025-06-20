@@ -68,13 +68,13 @@ function App() {
 
   async function loadData() {
     try {
-      const desksRes = await apiFetch('http://localhost:3000/desks');
+      const desksRes = await apiFetch('/desks');
       setDesks(await desksRes.json());
-      const bookingsRes = await apiFetch('http://localhost:3000/bookings');
+      const bookingsRes = await apiFetch('/bookings');
       setBookings(await bookingsRes.json());
-      const dailyRes = await apiFetch('http://localhost:3000/analytics/daily');
+      const dailyRes = await apiFetch('/analytics/daily');
       setDailyStats(await dailyRes.json());
-      const weeklyRes = await apiFetch('http://localhost:3000/analytics/weekly');
+      const weeklyRes = await apiFetch('/analytics/weekly');
       setWeeklyStats(await weeklyRes.json());
     } catch (err) {
       console.error(err);
@@ -83,7 +83,7 @@ function App() {
 
   async function loadForecast() {
     try {
-      const res = await fetch('http://localhost:8000/forecast');
+      const res = await fetch('/forecast');
       if (res.ok) {
         const data = await res.json();
         setForecast(data.forecast);
@@ -95,7 +95,7 @@ function App() {
 
   async function loadUserInfo() {
     if (!auth.isAuthenticated) return;
-    const res = await apiFetch('http://localhost:3000/users/me', { method: 'POST' });
+    const res = await apiFetch('/users/me', { method: 'POST' });
     if (res.ok) {
       const data = await res.json();
       setUserInfo(data);
@@ -105,7 +105,7 @@ function App() {
 
   async function loadUsers() {
     if (!auth.isAuthenticated) return;
-    const res = await apiFetch('http://localhost:3000/users');
+    const res = await apiFetch('/users');
     if (res.ok) {
       const data = await res.json();
       setUsers(data);
@@ -113,7 +113,7 @@ function App() {
   }
 
   async function updateRole(id, role) {
-    await apiFetch(`http://localhost:3000/users/${id}/role`, {
+    await apiFetch(`/users/${id}/role`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role }),
@@ -128,7 +128,7 @@ function App() {
     setChatLog((l) => l.concat({ from: 'user', text: msg }));
     setChatInput('');
     try {
-      const res = await apiFetch('http://localhost:3000/chatbot', {
+      const res = await apiFetch('/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg }),
@@ -145,7 +145,7 @@ function App() {
 
   async function loadAlerts() {
     try {
-      const res = await fetch('http://localhost:3000/alerts');
+      const res = await fetch('/alerts');
       if (res.ok) {
         const data = await res.json();
         setAlerts(data.alerts);
@@ -153,7 +153,7 @@ function App() {
 =======
   async function loadAlerts() {
     try {
-      const res = await fetch('http://localhost:3000/alerts');
+      const res = await fetch('/alerts');
       if (res.ok) {
         const data = await res.json();
         setAlerts(data.alerts);
@@ -186,7 +186,7 @@ function App() {
     dragRef.current = null;
     const desk = desks.find((d) => d.id === id);
     if (desk) {
-      await fetch(`http://localhost:3000/desks/${id}`, {
+      await fetch(`/desks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(desk),
@@ -240,9 +240,9 @@ function App() {
 
   async function loadData() {
     try {
-      const desksRes = await fetch('http://localhost:3000/desks');
+      const desksRes = await fetch('/desks');
       setDesks(await desksRes.json());
-      const bookingsRes = await fetch('http://localhost:3000/bookings');
+      const bookingsRes = await fetch('/bookings');
       setBookings(await bookingsRes.json());
     } catch (err) {
       console.error(err);
@@ -252,7 +252,7 @@ function App() {
   async function loadRecommendation() {
     setRecLoading(true);
     try {
-      const res = await apiFetch('http://localhost:3000/recommendation');
+      const res = await apiFetch('/recommendation');
       if (res.ok) {
         const desk = await res.json();
         setDeskId(String(desk.id));
@@ -287,9 +287,9 @@ function App() {
     dragRef.current = null;
     const desk = desks.find((d) => d.id === id);
     if (desk) {
-      await apiFetch(`http://localhost:3000/desks/${id}`, {
+      await apiFetch(`/desks/${id}`, {
 
-      await fetch(`http://localhost:3000/desks/${id}`, {
+      await fetch(`/desks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(desk),
@@ -298,7 +298,7 @@ function App() {
   }
 
   async function addDesk() {
-    const res = await apiFetch('http://localhost:3000/desks', {
+    const res = await apiFetch('/desks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ x: 10, y: 10, width: 50, height: 50 }),
@@ -310,7 +310,7 @@ function App() {
   }
 
   async function removeDesk(id) {
-    const res = await apiFetch(`http://localhost:3000/desks/${id}`, {
+    const res = await apiFetch(`/desks/${id}`, {
       method: 'DELETE',
     });
     if (res.ok) {
@@ -367,13 +367,13 @@ function App() {
   async function createBooking(e) {
     e.preventDefault();
     setMessage('');
-    const res = await apiFetch('http://localhost:3000/bookings', {
+    const res = await apiFetch('/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: auth.user ? auth.user.sub : 'anonymous',
 
-    const res = await fetch('http://localhost:3000/bookings', {
+    const res = await fetch('/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -730,7 +730,7 @@ function App() {
         )
 
   React.useEffect(() => {
-    fetch('http://localhost:3000/desks')
+    fetch('/desks')
       .then((res) => res.json())
       .then(setDesks)
       .catch(console.error);

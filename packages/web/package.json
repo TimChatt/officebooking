@@ -7,7 +7,7 @@
     "dev": "vite",
     "test:e2e": "cypress run",
     "build": "vite build",
-    "start": "vite preview --port 3001",
+    "start": "vite preview --port 3000",
     "test": "jest"
   },
   "dependencies": {
@@ -30,4 +30,3 @@
     "@babel/preset-react": "^7.22.5"
   }
 }
-

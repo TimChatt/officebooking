@@ -5,6 +5,7 @@ import DesksPage from './pages/DesksPage.jsx';
 import BookingsPage from './pages/BookingsPage.jsx';
 import AnalyticsPage from './pages/AnalyticsPage.jsx';
 import AlertsPage from './pages/AlertsPage.jsx';
+import EventsPage from './pages/EventsPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import Layout from './components/Layout.jsx';
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/events" element={<EventsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Routes>

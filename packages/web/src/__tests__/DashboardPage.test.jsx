@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import DashboardPage from '../pages/DashboardPage.jsx';
 import '@testing-library/jest-dom';
 
@@ -8,8 +8,11 @@ beforeAll(() => {
   );
 });
 
-test('renders dashboard heading', () => {
-  render(<DashboardPage />);
+test('renders dashboard heading', async () => {
+  await act(async () => {
+    render(<DashboardPage />);
+  });
+  await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   expect(screen.getByRole('heading', { name: /dashboard/i })).toBeInTheDocument();
 });
 

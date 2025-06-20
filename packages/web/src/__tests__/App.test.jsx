@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import App from '../App.jsx';
 import '@testing-library/jest-dom';
 
@@ -8,8 +8,11 @@ beforeAll(() => {
   );
 });
 
-test('renders heading', () => {
-  render(<App />);
+test('renders heading', async () => {
+  await act(async () => {
+    render(<App />);
+  });
+  await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   expect(screen.getByRole('heading', { name: /office booking/i })).toBeInTheDocument();
 });
 

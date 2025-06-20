@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import UsersPage from '../pages/UsersPage.jsx';
 import '@testing-library/jest-dom';
 
@@ -8,8 +8,11 @@ beforeAll(() => {
   );
 });
 
-test('renders users heading', () => {
-  render(<UsersPage />);
+test('renders users heading', async () => {
+  await act(async () => {
+    render(<UsersPage />);
+  });
+  await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   expect(screen.getByRole('heading', { name: /users/i })).toBeInTheDocument();
 });
 

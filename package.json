@@ -18,7 +18,7 @@
     "start:forecast": "uvicorn packages/forecast/app:app --port 8000",
     "start":          "concurrently \"npm run start:server\" \"npm run start:web\" \"npm run start:forecast\""
   },
-  "devDependencies": {
-    "concurrently": "^7.0.0"
+ "devDependencies": {
+  "concurrently": "^7.0.1"
   }
 }

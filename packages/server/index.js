@@ -13,6 +13,7 @@ const {
   deleteBooking,
   deleteDesk,
 } = require('./db');
+const { checkJwt } = require('./auth');
 
 function createApp() {
   const app = express();
@@ -48,6 +49,9 @@ function createApp() {
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Require auth for all following routes
+app.use(checkJwt);
 
 // Desks
 app.get('/desks', async (req, res) => {

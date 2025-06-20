@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fetch = require('node-fetch');
+const fetch = (...args) =>
+  import('node-fetch').then(({ default: fetch }) => fetch(...args));
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const {
@@ -15,34 +16,34 @@ const {
   deleteDesk,
 } = require('./db');
 
-const app = express();
+function createApp() {
+  const app = express();
 
-// at the very top, before any auth middleware:
-// serve the built frontend from packages/web/dist
-const webRoot = path.join(__dirname, '../web/dist')
+  // at the very top, before any auth middleware:
+  // serve the built frontend from packages/web/dist
+  const webRoot = path.join(__dirname, '../web/dist');
 
-// serve all built assets as static files
-app.use(express.static(webRoot))
+  // serve all built assets as static files
+  app.use(express.static(webRoot));
 
+  const sendgridKey = process.env.SENDGRID_API_KEY;
+  const alertEmail = process.env.ALERT_EMAIL;
+  const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+  const twilioToken = process.env.TWILIO_AUTH_TOKEN;
+  const twilioFrom = process.env.TWILIO_FROM;
+  const alertPhone = process.env.ALERT_PHONE;
 
-const sendgridKey = process.env.SENDGRID_API_KEY;
-const alertEmail = process.env.ALERT_EMAIL;
-const twilioSid = process.env.TWILIO_ACCOUNT_SID;
-const twilioToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioFrom = process.env.TWILIO_FROM;
-const alertPhone = process.env.ALERT_PHONE;
+  // Middleware
+  app.use(express.json());
+  app.use(cors());
 
-// Middleware
-app.use(express.json());
-app.use(cors());
-
-// Admin check middleware
-function requireAdmin(req, res, next) {
-  if (req.headers['x-user-role'] !== 'admin') {
-    return res.status(403).json({ error: 'admin only' });
+  // Admin check middleware
+  function requireAdmin(req, res, next) {
+    if (req.headers['x-user-role'] !== 'admin') {
+      return res.status(403).json({ error: 'admin only' });
+    }
+    next();
   }
-  next();
-}
 
 // Health check
 app.get('/health', (req, res) => {
@@ -367,15 +368,22 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(webRoot, 'index.html'));
 });
 
+  return app;
+}
+
+module.exports = { createApp };
+
 // Server
-const PORT = process.env.PORT || 3000;
-init()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`API server listening on port ${PORT}`);
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  init()
+    .then(() => {
+      createApp().listen(PORT, () => {
+        console.log(`API server listening on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('Failed to initialize DB', err);
+      process.exit(1);
     });
-  })
-  .catch((err) => {
-    console.error('Failed to initialize DB', err);
-    process.exit(1);
-  });
+}

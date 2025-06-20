@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
               data={daily.map(d => ({
                 day: new Date(d.day).toLocaleDateString(),
                 bookings: d.bookings
-              })}
+              }))}
             >
               <CartesianGrid stroke="#e2e8f0" />
               <XAxis dataKey="day" fontSize={12} />

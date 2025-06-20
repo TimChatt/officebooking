@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Calendar, BarChart2 } from 'lucide-react';
+import { Home, Calendar, BarChart2, CalendarDays } from 'lucide-react';
 import {
   AppBar,
   Toolbar,
@@ -19,6 +19,7 @@ const navItems = [
   { name: 'Dashboard', icon: <Home size={18} />, href: '/dashboard' },
   { name: 'Book a Desk', icon: <Calendar size={18} />, href: '/bookings' },
   { name: 'Forecast', icon: <BarChart2 size={18} />, href: '/analytics' },
+  { name: 'Events', icon: <CalendarDays size={18} />, href: '/events' },
 ];
 
 export default function Layout({ children }) {

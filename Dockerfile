@@ -17,7 +17,7 @@ COPY packages ./packages
 
 # node deps & build
 RUN npm install --legacy-peer-deps --no-audit --prefer-online
-RUN npm run build
+RUN npm --workspace packages/web run build
 
 # python deps into the venv
 RUN pip install --no-cache-dir -r packages/forecast/requirements.txt

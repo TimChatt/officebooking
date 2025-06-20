@@ -8,8 +8,6 @@ const {
   pool,
   init,
   logEvent,
-  ensureUser,
-  getUserRole,
   getUsers,
   updateUserRole,
   updateBooking,
@@ -17,14 +15,7 @@ const {
   deleteDesk,
 } = require('./db');
 
-const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 const app = express();
-
-const jwtCheck = auth({
-  audience: process.env.AUTH0_AUDIENCE,
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}/`,
-  tokenSigningAlg: 'RS256',
-});
 
 // at the very top, before any auth middleware:
 // serve the built frontend from packages/web/dist
@@ -33,11 +24,6 @@ const webRoot = path.join(__dirname, '../web/dist')
 // serve all built assets as static files
 app.use(express.static(webRoot))
 
-// “catch-all” — for any route not handled above, send back dist/index.html
-// (so your client-side router can take over)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(webRoot, 'index.html'))
-})
 
 const sendgridKey = process.env.SENDGRID_API_KEY;
 const alertEmail = process.env.ALERT_EMAIL;
@@ -49,12 +35,12 @@ const alertPhone = process.env.ALERT_PHONE;
 // Middleware
 app.use(express.json());
 app.use(cors());
-app.use(jwtCheck);
 
 // Admin check middleware
-async function requireAdmin(req, res, next) {
-  const role = await getUserRole(req.auth.sub);
-  if (role !== 'admin') return res.status(403).json({ error: 'admin only' });
+function requireAdmin(req, res, next) {
+  if (req.headers['x-user-role'] !== 'admin') {
+    return res.status(403).json({ error: 'admin only' });
+  }
   next();
 }
 
@@ -148,7 +134,6 @@ app.post('/bookings', async (req, res) => {
     return res.status(400).json({ error: 'missing fields' });
   }
 
-  await ensureUser(req.auth.sub, req.auth.email || '');
 
   const [blockConflicts, conflicts] = await Promise.all([
     pool.query(
@@ -224,8 +209,7 @@ app.delete('/bookings/:id', async (req, res) => {
 
 // User
 app.post('/users/me', async (req, res) => {
-  const user = await ensureUser(req.auth.sub, req.auth.email || '');
-  res.json(user);
+  res.json({ id: 'anon', email: 'test@example.com', role: 'user' });
 });
 
 app.get('/users', requireAdmin, async (req, res) => {
@@ -376,6 +360,11 @@ app.post('/chatbot', async (req, res) => {
     console.error('chatbot failed', err);
     res.status(500).json({ error: 'chatbot failed' });
   }
+});
+
+// Fallback for SPA routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(webRoot, 'index.html'));
 });
 
 // Server

@@ -3,6 +3,8 @@ import Layout from '../components/Layout';
 import Modal from '../components/ui/Modal.jsx';
 import Button from '../components/ui/Button.jsx';
 import { Box, Typography } from '@mui/material';
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 
 // Scale factor for converting desk units to pixels
 const SCALE = 40;
@@ -11,15 +13,34 @@ export default function DesksPage() {
   const [desks, setDesks] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [bookingDesk, setBookingDesk] = useState(null);
-  const [booking, setBooking] = useState({ start: '', end: '' });
+  const [booking, setBooking] = useState({
+    start: dayjs().hour(9).minute(0).second(0),
+    end: dayjs().hour(10).minute(0).second(0),
+  });
   const [drag, setDrag] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [bookings, setBookings] = useState([]);
 
   async function load() {
     const res = await fetch('/desks');
     if (res.ok) setDesks(await res.json());
   }
 
+  async function loadBookings(date) {
+    const res = await fetch('/bookings');
+    if (!res.ok) return;
+    const data = await res.json();
+    const start = dayjs(date).startOf('day');
+    const end = dayjs(date).endOf('day');
+    setBookings(
+      data.filter(
+        (b) => dayjs(b.start_time).isBefore(end) && dayjs(b.end_time).isAfter(start)
+      )
+    );
+  }
+
   useEffect(() => { load(); }, []);
+  useEffect(() => { loadBookings(selectedDate); }, [selectedDate]);
 
   async function addDesk() {
     await fetch('/desks', {
@@ -62,8 +83,9 @@ export default function DesksPage() {
     const d = desks.find(dd => dd.id === drag.id);
     setDrag(null);
     if (!drag.moved) {
+      const start = dayjs(selectedDate).hour(9).minute(0).second(0);
       setBookingDesk(d);
-      setBooking({ start: '', end: '' });
+      setBooking({ start, end: start.add(1, 'hour') });
       return;
     }
     await fetch(`/desks/${d.id}`, {
@@ -82,11 +104,23 @@ export default function DesksPage() {
       body: JSON.stringify({
         user_id: 'anon',
         desk_id: bookingDesk.id,
-        start_time: booking.start,
-        end_time: booking.end
+        start_time: booking.start.toISOString(),
+        end_time: booking.end.toISOString(),
       })
     });
     setBookingDesk(null);
+  }
+
+  function getDeskStatus(id) {
+    const bs = bookings.filter((b) => b.desk_id === id);
+    if (!bs.length) return 'available';
+    return bs.some((b) => b.user_id === 'anon') ? 'mine' : 'booked';
+  }
+
+  function deskColor(status) {
+    if (status === 'booked') return 'error.light';
+    if (status === 'mine') return 'success.light';
+    return 'background.paper';
   }
 
   return (
@@ -95,6 +129,15 @@ export default function DesksPage() {
         <Typography variant="h5" gutterBottom>
           Floor Plan
         </Typography>
+
+        <Box mb={2} maxWidth={200}>
+          <DatePicker
+            label="Select Date"
+            value={selectedDate}
+            onChange={(v) => v && setSelectedDate(v)}
+            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+          />
+        </Box>
 
         <Box mb={2}>
           <Button onClick={() => setShowAdd(true)}>Add New Desk</Button>
@@ -113,7 +156,7 @@ export default function DesksPage() {
                 top: d.y * SCALE,
                 width: d.width * SCALE,
                 height: d.height * SCALE,
-                bgcolor: 'background.paper',
+                bgcolor: deskColor(getDeskStatus(d.id)),
                 border: '1px solid #cbd5e1',
                 fontSize: 12,
                 fontWeight: 500,
@@ -144,24 +187,18 @@ export default function DesksPage() {
             Book Desk {bookingDesk?.id}
           </Typography>
           <Box component="form" onSubmit={submitBooking} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div>
-              <label>Start Time</label>
-              <input
-                type="datetime-local"
-                value={booking.start}
-                onChange={(e) => setBooking({ ...booking, start: e.target.value })}
-                style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
-              />
-            </div>
-            <div>
-              <label>End Time</label>
-              <input
-                type="datetime-local"
-                value={booking.end}
-                onChange={(e) => setBooking({ ...booking, end: e.target.value })}
-                style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
-              />
-            </div>
+            <DateTimePicker
+              label="Start Time"
+              value={booking.start}
+              onChange={(v) => v && setBooking({ ...booking, start: v })}
+              slotProps={{ textField: { size: 'small', fullWidth: true } }}
+            />
+            <DateTimePicker
+              label="End Time"
+              value={booking.end}
+              onChange={(v) => v && setBooking({ ...booking, end: v })}
+              slotProps={{ textField: { size: 'small', fullWidth: true } }}
+            />
             <Button type="submit" fullWidth>
               Book Desk
             </Button>

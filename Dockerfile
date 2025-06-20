@@ -7,7 +7,7 @@ COPY package.json package-lock.json ./
 COPY packages ./packages
 
 # Install using the lockfile
-RUN npm ci
+RUN npm install
 
 # Build the web app
 RUN npm run build

@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Button from '../components/ui/Button.jsx';
+import {
+  Box,
+  Typography,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+} from '@mui/material';
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState([]);
@@ -22,31 +32,37 @@ export default function AlertsPage() {
 
   return (
     <Layout>
-      <div>
-        <h1 className="text-2xl font-semibold mb-6">Alerts</h1>
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          Alerts
+        </Typography>
 
-        <table className="table-auto w-full text-left bg-white border border-slate-200 rounded-md shadow-sm">
-          <thead className="bg-slate-100 text-slate-700 text-sm">
-            <tr>
-              <th className="px-4 py-2 border-b">Date</th>
-              <th className="px-4 py-2 border-b">Bookings</th>
-              <th className="px-4 py-2 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {alerts.map((a, idx) => (
-              <tr key={idx} className="border-b last:border-b-0 hover:bg-slate-50">
-                <td className="px-4 py-2">{new Date(a.day).toLocaleDateString()}</td>
-                <td className="px-4 py-2">{a.bookings}</td>
-                <td className="px-4 py-2 space-x-2">
-                  <Button onClick={resendEmail}>Resend Email</Button>
-                  <Button onClick={resendSms}>Resend SMS</Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        <Paper>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell>Bookings</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {alerts.map((a, idx) => (
+                <TableRow key={idx} hover>
+                  <TableCell>{new Date(a.day).toLocaleDateString()}</TableCell>
+                  <TableCell>{a.bookings}</TableCell>
+                  <TableCell>
+                    <Button onClick={resendEmail}>Resend Email</Button>
+                    <Button onClick={resendSms} sx={{ ml: 1 }}>
+                      Resend SMS
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Paper>
+      </Box>
     </Layout>
   );
 }

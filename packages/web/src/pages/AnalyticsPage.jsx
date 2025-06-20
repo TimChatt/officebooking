@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar } from 'recharts';
 import Card from '../components/ui/Card.jsx';
+import { Box, Typography, Grid, Paper } from '@mui/material';
 
 export default function AnalyticsPage() {
   const [daily, setDaily] = useState([]);
@@ -22,23 +23,36 @@ export default function AnalyticsPage() {
 
   return (
     <Layout>
-      <div>
-        <h1 className="text-2xl font-semibold mb-6">Analytics</h1>
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          Analytics
+        </Typography>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <p className="text-sm text-slate-500">Total Bookings</p>
-            <p className="text-lg font-medium">{total}</p>
-          </Card>
-          <Card>
-            <p className="text-sm text-slate-500">Weeks Tracked</p>
-            <p className="text-lg font-medium">{weekly.length}</p>
-          </Card>
-        </div>
+        <Grid container spacing={2} mb={3}>
+          <Grid item xs={6} md={3}>
+            <Card>
+              <Typography variant="body2" color="text.secondary">
+                Total Bookings
+              </Typography>
+              <Typography variant="h6">{total}</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Card>
+              <Typography variant="body2" color="text.secondary">
+                Weeks Tracked
+              </Typography>
+              <Typography variant="h6">{weekly.length}</Typography>
+            </Card>
+          </Grid>
+        </Grid>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white p-4 rounded-lg border shadow-sm">
-            <h2 className="text-lg font-semibold mb-2">Daily Bookings</h2>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Daily Bookings
+              </Typography>
             <LineChart
               width={450}
               height={200}
@@ -53,10 +67,14 @@ export default function AnalyticsPage() {
               <Tooltip />
               <Line type="monotone" dataKey="bookings" stroke="#2563eb" strokeWidth={2} />
             </LineChart>
-          </div>
+            </Paper>
+          </Grid>
 
-          <div className="bg-white p-4 rounded-lg border shadow-sm">
-            <h2 className="text-lg font-semibold mb-2">Weekly Bookings</h2>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Weekly Bookings
+              </Typography>
             <BarChart
               width={450}
               height={200}
@@ -71,9 +89,10 @@ export default function AnalyticsPage() {
               <Tooltip />
               <Bar dataKey="bookings" fill="#16a34a" />
             </BarChart>
-          </div>
-        </div>
-      </div>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
     </Layout>
   );
 }

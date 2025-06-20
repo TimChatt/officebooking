@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import clsx from 'clsx';
 import Button from './ui/Button.jsx';
 import { useChat } from '../context/ChatContext.jsx';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import Box from '@mui/material/Box';
 
 export default function ChatOverlay({ open, onClose }) {
   const { messages, loading, sendMessage } = useChat();
@@ -30,46 +32,38 @@ export default function ChatOverlay({ open, onClose }) {
   }
 
   return (
-    <div className={clsx('fixed inset-0 z-50 flex justify-center sm:justify-end', !open && 'pointer-events-none')}>
-      <div
-        className={clsx(
-          'absolute inset-0 bg-black/50 transition-opacity',
-          open ? 'opacity-100' : 'opacity-0'
-        )}
-        aria-hidden="true"
-        onClick={onClose}
-      />
-      <div
-        className={clsx(
-          'relative z-10 flex h-3/4 w-full max-w-sm flex-col bg-white p-4 shadow-lg transition-transform duration-300 sm:h-full',
-          open ? 'translate-y-0 sm:translate-x-0' : 'translate-y-full sm:translate-x-full'
-        )}
-      >
-        <div className="mb-2 flex justify-between">
-          <h2 className="text-lg font-semibold">Chatbot</h2>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogContent>
+        <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between' }}>
+          <h2>Chatbot</h2>
           <button onClick={onClose}>×</button>
-        </div>
-        <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-2 mb-2">
+        </Box>
+        <Box ref={messagesRef} sx={{ mb: 2, maxHeight: 300, overflowY: 'auto' }}>
           {messages.map((m, idx) => (
-            <div key={idx} className={m.from === 'user' ? 'text-right' : ''}>
-              <span className="inline-block rounded bg-gray-100 px-2 py-1">
+            <Box key={idx} textAlign={m.from === 'user' ? 'right' : 'left'}>
+              <Box
+                component="span"
+                sx={{ display: 'inline-block', background: '#f3f4f6', px: 1, py: 0.5, borderRadius: 1 }}
+              >
                 {m.content}
-              </span>
-            </div>
+              </Box>
+            </Box>
           ))}
-          {loading && <div className="text-center text-gray-500">...</div>}
-        </div>
-        <form onSubmit={submit} className="mt-auto flex space-x-2">
+          {loading && (
+            <Box textAlign="center" color="text.secondary">
+              ...
+            </Box>
+          )}
+        </Box>
+        <Box component="form" onSubmit={submit} sx={{ display: 'flex', gap: 1 }}>
           <input
-            className="flex-1 rounded border p-2"
+            style={{ flex: 1, padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <Button type="submit" disabled={loading || !text.trim()}>
-            Send
-          </Button>
-        </form>
-      </div>
-    </div>
+          <Button type="submit" disabled={loading || !text.trim()}>Send</Button>
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
 }

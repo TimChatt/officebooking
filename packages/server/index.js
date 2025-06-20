@@ -26,14 +26,14 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256',
 });
 
-// serve Vite's public/ directory first (static assets)
+// serve the public assets (if you have one)
 app.use(express.static(path.join(__dirname, '../web/public')));
 
-// then serve your raw index.html and src assets
+// serve the raw src folder
 const webRoot = path.join(__dirname, '../web/src');
 app.use(express.static(webRoot));
 
-// always fallback to src/index.html for client-side routing
+// always fall back to src/index.html so your client-side router works
 app.get('*', (req, res) => {
   res.sendFile(path.join(webRoot, 'index.html'));
 });

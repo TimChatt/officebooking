@@ -26,10 +26,13 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256',
 });
 
-// serve static files from your React build
-app.use(express.static(path.join(__dirname, '../web/build')));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../web/build/index.html'));
+// serve your Vite build output
+const webRoot = path.join(__dirname, '../web/src/dist');
+app.use(express.static(webRoot));
+
+// fallback — serve index.html for any other route (so client-side routing works)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(webRoot, 'index.html'));
 });
 
 const sendgridKey = process.env.SENDGRID_API_KEY;

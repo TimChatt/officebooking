@@ -71,6 +71,16 @@ npm run dev:forecast
 
 This will start the API server on http://localhost:3000 and the React app on http://localhost:3001.
 
+### Start in Production
+
+To run the API and forecast service together (as used in deployment) simply run:
+
+```
+npm start
+```
+
+This starts the Express server and the Python forecast service.
+
 The API exposes `/health`, `/desks`, `/bookings`, analytics, and recommendation endpoints.
 Bookings can also be updated via `PUT /bookings/:id` or removed with `DELETE /bookings/:id`.
 Desks can be created via `POST /desks`, updated via `PUT /desks/:id`, removed with `DELETE /desks/:id`, and blocked for date ranges using

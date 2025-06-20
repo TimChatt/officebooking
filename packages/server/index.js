@@ -324,6 +324,18 @@ app.get('/alerts', async (req, res) => {
   }
 });
 
+// Proxy forecast data from the Python service
+app.get('/forecast', async (req, res) => {
+  try {
+    const fRes = await fetch('http://localhost:8000/forecast');
+    const data = await fRes.json();
+    res.json(data);
+  } catch (err) {
+    console.error('failed to fetch forecast', err);
+    res.status(500).json({ error: 'failed to fetch forecast' });
+  }
+});
+
 // Chatbot
 app.post('/chatbot', async (req, res) => {
   const apiKey = process.env.OPENAI_API_KEY;

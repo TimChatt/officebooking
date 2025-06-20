@@ -1,26 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import UtilizationChart from './UtilizationChart';
-
-function DeskList() {
-  const [desks, setDesks] = useState([]);
-
-  useEffect(() => {
-    fetch('/desks')
-      .then((res) => res.json())
-      .then(setDesks)
-      .catch(console.error);
-  }, []);
-
-  return (
-    <ul>
-      {desks.map((d) => (
-        <li key={d.id}>{`Desk ${d.id}: (${d.x}, ${d.y})`}</li>
-      ))}
-    </ul>
-  );
-}
 
 function AdminDesks() {
   const [desks, setDesks] = useState([]);
@@ -62,25 +42,14 @@ function AdminDesks() {
 }
 
 function App() {
-  const { loginWithRedirect, logout, isAuthenticated, getAccessTokenSilently } = useAuth0();
   const [desks, setDesks] = useState([]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      getAccessTokenSilently().then((token) => {
-        localStorage.setItem('access_token', token);
-        fetch('/desks', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((res) => res.json())
-          .then(setDesks)
-          .catch(console.error);
-      });
-    } else {
-      setDesks([]);
-      localStorage.removeItem('access_token');
-    }
-  }, [isAuthenticated, getAccessTokenSilently]);
+    fetch('/desks')
+      .then((res) => res.json())
+      .then(setDesks)
+      .catch(console.error);
+  }, []);
 
   if (window.location.pathname.startsWith('/admin')) {
     return <AdminDesks />;
@@ -90,38 +59,14 @@ function App() {
     <div>
       <h1>Office Booking</h1>
       <UtilizationChart />
-      {isAuthenticated ? (
-        <>
-          <button onClick={() => logout({ returnTo: window.location.origin })}>Log Out</button>
-          <ul>
-            {desks.map((d) => (
-              <li key={d.id}>
-                Desk {d.id}: ({d.x}, {d.y})
-              </li>
-            ))}
-          </ul>
-        </>
-      ) : (
-        <button onClick={() => loginWithRedirect()}>Log In</button>
-      )}
-      <DeskList />
+      <ul>
+        {desks.map((d) => (
+          <li key={d.id}>Desk {d.id}: ({d.x}, {d.y})</li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-const container = document.getElementById('root');
-const root = createRoot(container);
-
-root.render(
-  <Auth0Provider
-    domain={import.meta.env.VITE_AUTH0_DOMAIN}
-    clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-    authorizationParams={{
-      audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-      redirect_uri: window.location.origin,
-    }}
-    cacheLocation="localstorage"
-  >
-    <App />
-  </Auth0Provider>
-);
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);

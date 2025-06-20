@@ -6,10 +6,6 @@ Express server exposing health and booking endpoints. It reads environment varia
 
 Set `DATABASE_URL` to a Postgres connection string. The server will create the
 required tables on startup.
-The following Auth0 variables must also be configured:
-
-- `AUTH0_DOMAIN`
-- `AUTH0_AUDIENCE`
 - `SENDGRID_API_KEY` (optional, for email alerts)
 - `ALERT_EMAIL` (who should receive alert emails)
 - `TWILIO_ACCOUNT_SID` (optional, for SMS alerts)

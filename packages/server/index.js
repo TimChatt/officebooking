@@ -30,6 +30,7 @@ function createApp() {
   const twilioToken = process.env.TWILIO_AUTH_TOKEN;
   const twilioFrom = process.env.TWILIO_FROM;
   const alertPhone = process.env.ALERT_PHONE;
+  const forecastUrl = process.env.FORECAST_URL || 'http://localhost:8000';
 
   // Middleware
   app.use(express.json());
@@ -305,7 +306,7 @@ async function sendAlertSms(alerts) {
 
 app.get('/alerts', async (req, res) => {
   try {
-    const fRes = await fetch('http://localhost:8000/forecast');
+    const fRes = await fetch(`${forecastUrl}/forecast`);
     const fData = await fRes.json();
     const { rows } = await pool.query('SELECT COUNT(*) FROM desks');
     const totalDesks = Number(rows[0].count);
@@ -323,7 +324,7 @@ app.get('/alerts', async (req, res) => {
 // Proxy forecast data from the Python service
 app.get('/forecast', async (req, res) => {
   try {
-    const fRes = await fetch('http://localhost:8000/forecast');
+    const fRes = await fetch(`${forecastUrl}/forecast`);
     const data = await fRes.json();
     res.json(data);
   } catch (err) {

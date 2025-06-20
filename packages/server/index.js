@@ -26,6 +26,12 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256',
 });
 
+// serve static files from your React build
+app.use(express.static(path.join(__dirname, '../web/build')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../web/build/index.html'));
+});
+
 const sendgridKey = process.env.SENDGRID_API_KEY;
 const alertEmail = process.env.ALERT_EMAIL;
 const twilioSid = process.env.TWILIO_ACCOUNT_SID;

@@ -27,12 +27,13 @@ const jwtCheck = auth({
 });
 
 // at the very top, before any auth middleware:
-const webRoot = path.join(__dirname, '../web/public')
+// serve the built frontend from packages/web/dist
+const webRoot = path.join(__dirname, '../web/dist')
 
-// serve all of public/ as static files
+// serve all built assets as static files
 app.use(express.static(webRoot))
 
-// “catch-all” — for any route not handled above, send back public/index.html
+// “catch-all” — for any route not handled above, send back dist/index.html
 // (so your client-side router can take over)
 app.get('*', (req, res) => {
   res.sendFile(path.join(webRoot, 'index.html'))

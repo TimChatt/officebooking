@@ -1,12 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import clsx from 'clsx';
 import Button from './ui/Button.jsx';
 import { useChat } from '../context/ChatContext.jsx';
 
 export default function ChatOverlay({ open, onClose }) {
   const { messages, loading, sendMessage } = useChat();
   const [text, setText] = useState('');
+  const messagesRef = useRef(null);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    function handleKey(e) {
+      if (e.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
 
   async function submit(e) {
     e.preventDefault();
@@ -16,18 +30,26 @@ export default function ChatOverlay({ open, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className={clsx('fixed inset-0 z-50 flex justify-center sm:justify-end', !open && 'pointer-events-none')}>
       <div
-        className="absolute inset-0 bg-black/50"
+        className={clsx(
+          'absolute inset-0 bg-black/50 transition-opacity',
+          open ? 'opacity-100' : 'opacity-0'
+        )}
         aria-hidden="true"
         onClick={onClose}
       />
-      <div className="relative z-10 flex h-full w-full max-w-sm flex-col bg-white p-4 shadow-lg">
+      <div
+        className={clsx(
+          'relative z-10 flex h-3/4 w-full max-w-sm flex-col bg-white p-4 shadow-lg transition-transform duration-300 sm:h-full',
+          open ? 'translate-y-0 sm:translate-x-0' : 'translate-y-full sm:translate-x-full'
+        )}
+      >
         <div className="mb-2 flex justify-between">
           <h2 className="text-lg font-semibold">Chatbot</h2>
           <button onClick={onClose}>×</button>
         </div>
-        <div className="flex-1 overflow-y-auto space-y-2 mb-2">
+        <div ref={messagesRef} className="flex-1 overflow-y-auto space-y-2 mb-2">
           {messages.map((m, idx) => (
             <div key={idx} className={m.from === 'user' ? 'text-right' : ''}>
               <span className="inline-block rounded bg-gray-100 px-2 py-1">

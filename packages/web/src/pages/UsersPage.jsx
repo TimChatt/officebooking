@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Layout from '../components/layout';
 import Button from '../components/ui/Button.jsx';
 
 export default function UsersPage() {
@@ -27,28 +28,35 @@ export default function UsersPage() {
   }
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-2">Users</h2>
-      <table className="table-auto w-full text-left">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Role</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u.id}>
-              <td>{u.email}</td>
-              <td>{u.role}</td>
-              <td>
-                <Button onClick={() => toggleRole(u)}>Toggle Role</Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Layout>
+      <div>
+        <h1 className="text-2xl font-semibold mb-6">User Management</h1>
+
+        <div className="bg-white rounded-lg border shadow-sm overflow-x-auto">
+          <table className="min-w-full text-sm text-left">
+            <thead className="bg-slate-100 text-slate-700">
+              <tr>
+                <th className="px-4 py-2 border-b">Email</th>
+                <th className="px-4 py-2 border-b">Role</th>
+                <th className="px-4 py-2 border-b">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} className="hover:bg-slate-50 border-b last:border-none">
+                  <td className="px-4 py-2">{u.email}</td>
+                  <td className="px-4 py-2">{u.role}</td>
+                  <td className="px-4 py-2">
+                    <Button onClick={() => toggleRole(u)} size="sm">
+                      Toggle Role
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </Layout>
   );
 }

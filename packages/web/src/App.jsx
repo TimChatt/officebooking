@@ -5,13 +5,11 @@ import BookingsPage from './pages/BookingsPage.jsx';
 import AnalyticsPage from './pages/AnalyticsPage.jsx';
 import AlertsPage from './pages/AlertsPage.jsx';
 import Layout from './components/Layout.jsx';
-import TabNav from './components/TabNav.jsx';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Layout>
-        <TabNav />
         <Routes>
           <Route path="/" element={<Navigate to="/desks" />} />
           <Route path="/desks" element={<DesksPage />} />

@@ -6,10 +6,13 @@ export default function AppShell({ children }) {
   const [open, setOpen] = useState(false);
 
   const links = [
+    { to: '/dashboard', label: 'Dashboard' },
     { to: '/desks', label: 'Desks' },
     { to: '/bookings', label: 'Bookings' },
     { to: '/analytics', label: 'Analytics' },
     { to: '/alerts', label: 'Alerts' },
+    { to: '/users', label: 'Users' },
+    { to: '/settings', label: 'Settings' },
   ];
 
   const linkClass = ({ isActive }) =>

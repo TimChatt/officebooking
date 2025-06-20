@@ -6,6 +6,7 @@ Express API for the Office Booking app. It reads configuration from `.env` in th
 - `DATABASE_URL` – Postgres connection string
 - `SENDGRID_API_KEY` and `ALERT_EMAIL` – optional email alerts
 - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `ALERT_PHONE` – optional SMS alerts
+- `FORECAST_URL` – base URL for the forecast service (defaults to `http://localhost:8000`)
 - `OPENAI_API_KEY` – enables the `/chatbot` endpoint
 
 ## Development

@@ -1,10 +1,10 @@
 const request = require('supertest');
-const { createApp } = require('..');
+const { createApp } = require('../index');
 const db = require('../db');
 
 jest.mock('../db', () => {
   const mockPool = { query: jest.fn() };
-  return { pool: mockPool, init: jest.fn() };
+  return { pool: mockPool, init: jest.fn(), logEvent: jest.fn() };
 });
 
 beforeEach(() => {
@@ -35,6 +35,7 @@ test('POST /bookings detects conflict', async () => {
 
 test('POST /bookings creates booking', async () => {
   db.pool.query
+    .mockResolvedValueOnce({ rows: [] })
     .mockResolvedValueOnce({ rows: [] })
     .mockResolvedValueOnce({ rows: [{ id: 1 }] });
   const app = createApp();

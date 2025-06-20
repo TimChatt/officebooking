@@ -1,10 +1,10 @@
 const request = require('supertest');
-const { createApp } = require('..');
+const { createApp } = require('../index');
 const db = require('../db');
 
 jest.mock('../db', () => {
   const mockPool = { query: jest.fn() };
-  return { pool: mockPool, init: jest.fn() };
+  return { pool: mockPool, init: jest.fn(), logEvent: jest.fn() };
 });
 
 beforeEach(() => {

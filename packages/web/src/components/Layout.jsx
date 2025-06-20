@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ChatButton from './ChatButton.jsx';
 import ChatOverlay from './ChatOverlay.jsx';
-import { ChatProvider } from '../context/ChatContext.js';
+import { ChatProvider } from '../context/ChatContext.jsx';
 
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);

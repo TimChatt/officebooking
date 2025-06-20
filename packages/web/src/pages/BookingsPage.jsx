@@ -1,6 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Button from '../components/ui/Button.jsx';
+import {
+  Box,
+  Typography,
+  Grid,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+} from '@mui/material';
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState([]);
@@ -51,82 +67,90 @@ export default function BookingsPage() {
 
   return (
     <Layout>
-      <div>
-        <h1 className="text-2xl font-semibold mb-6">Manage Bookings</h1>
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          Manage Bookings
+        </Typography>
 
-        <form onSubmit={submit} className="mb-6 space-y-4 bg-white p-4 rounded-lg border shadow-sm">
-          <div className="grid md:grid-cols-4 gap-4 items-end">
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">Desk</label>
-              <select
-                value={form.desk_id}
-                onChange={e => setForm({ ...form, desk_id: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-              >
-                <option value="">Select a desk</option>
-                {desks.map(d => (
-                  <option key={d.id} value={d.id}>
-                    Desk {d.id}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">Start Time</label>
-              <input
+        <Box component="form" onSubmit={submit} sx={{ mb: 3, p: 2, background: 'white', borderRadius: 1, boxShadow: 1 }}>
+          <Grid container spacing={2} alignItems="flex-end">
+            <Grid item xs={12} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="desk-select">Desk</InputLabel>
+                <Select
+                  labelId="desk-select"
+                  value={form.desk_id}
+                  label="Desk"
+                  onChange={(e) => setForm({ ...form, desk_id: e.target.value })}
+                >
+                  <MenuItem value="">
+                    <em>Select a desk</em>
+                  </MenuItem>
+                  {desks.map((d) => (
+                    <MenuItem key={d.id} value={d.id}>
+                      Desk {d.id}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <TextField
                 type="datetime-local"
+                label="Start Time"
+                size="small"
+                fullWidth
                 value={form.start}
-                onChange={e => setForm({ ...form, start: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 text-sm"
+                onChange={(e) => setForm({ ...form, start: e.target.value })}
+                InputLabelProps={{ shrink: true }}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">End Time</label>
-              <input
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <TextField
                 type="datetime-local"
+                label="End Time"
+                size="small"
+                fullWidth
                 value={form.end}
-                onChange={e => setForm({ ...form, end: e.target.value })}
-                className="w-full border rounded-md px-3 py-2 text-sm"
+                onChange={(e) => setForm({ ...form, end: e.target.value })}
+                InputLabelProps={{ shrink: true }}
               />
-            </div>
-
-            <div>
-              <Button type="submit" className="w-full">
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Button type="submit" fullWidth>
                 {form.id ? 'Update Booking' : 'Create Booking'}
               </Button>
-            </div>
-          </div>
-        </form>
+            </Grid>
+          </Grid>
+        </Box>
 
-        <div className="bg-white rounded-lg border shadow-sm overflow-x-auto">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-slate-100 text-slate-700">
-              <tr>
-                <th className="px-4 py-2 border-b">Desk</th>
-                <th className="px-4 py-2 border-b">Start</th>
-                <th className="px-4 py-2 border-b">End</th>
-                <th className="px-4 py-2 border-b"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map(b => (
-                <tr key={b.id} className="hover:bg-slate-50 border-b last:border-none">
-                  <td className="px-4 py-2">{b.desk_id}</td>
-                  <td className="px-4 py-2">{new Date(b.start_time).toLocaleString()}</td>
-                  <td className="px-4 py-2">{new Date(b.end_time).toLocaleString()}</td>
-                  <td className="px-4 py-2">
-                    <Button onClick={() => edit(b)} size="sm">
+        <Paper sx={{ overflowX: 'auto' }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Desk</TableCell>
+                <TableCell>Start</TableCell>
+                <TableCell>End</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {bookings.map((b) => (
+                <TableRow key={b.id} hover>
+                  <TableCell>{b.desk_id}</TableCell>
+                  <TableCell>{new Date(b.start_time).toLocaleString()}</TableCell>
+                  <TableCell>{new Date(b.end_time).toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => edit(b)} size="small">
                       Edit
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </Paper>
+      </Box>
     </Layout>
   );
 }

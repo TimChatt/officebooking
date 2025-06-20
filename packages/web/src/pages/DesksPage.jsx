@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Modal from '../components/ui/Modal.jsx';
 import Button from '../components/ui/Button.jsx';
+import { Box, Typography } from '@mui/material';
 
 // Scale factor for converting desk units to pixels
 const SCALE = 40;
@@ -90,65 +91,83 @@ export default function DesksPage() {
 
   return (
     <Layout>
-      <div onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
-        <h1 className="text-2xl font-semibold mb-6">Floor Plan</h1>
+      <Box onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
+        <Typography variant="h5" gutterBottom>
+          Floor Plan
+        </Typography>
 
-        <div className="mb-4">
+        <Box mb={2}>
           <Button onClick={() => setShowAdd(true)}>Add New Desk</Button>
-        </div>
+        </Box>
 
-        <div className="relative w-full h-[500px] border rounded-lg bg-slate-50 overflow-hidden">
-          {desks.map(d => (
-            <div
+        <Box
+          sx={{ position: 'relative', width: '100%', height: 500, border: '1px solid #ddd', borderRadius: 1, bgcolor: '#f1f5f9', overflow: 'hidden' }}
+        >
+          {desks.map((d) => (
+            <Box
               key={d.id}
-              onMouseDown={e => startDrag(d, e)}
-              className="absolute bg-white border border-slate-300 text-xs font-medium shadow-sm hover:shadow-md transition cursor-move flex items-center justify-center rounded select-none"
-              style={{
+              onMouseDown={(e) => startDrag(d, e)}
+              sx={{
+                position: 'absolute',
                 left: d.x * SCALE,
                 top: d.y * SCALE,
                 width: d.width * SCALE,
-                height: d.height * SCALE
+                height: d.height * SCALE,
+                bgcolor: 'background.paper',
+                border: '1px solid #cbd5e1',
+                fontSize: 12,
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 1,
+                cursor: 'move',
+                boxShadow: 1,
+                '&:hover': { boxShadow: 3 },
+                userSelect: 'none',
               }}
             >
               Desk {d.id}
-            </div>
+            </Box>
           ))}
-        </div>
+        </Box>
 
-        {/* Modal: Add Desk */}
         <Modal open={showAdd} onClose={() => setShowAdd(false)}>
-          <h2 className="text-lg font-semibold mb-4">Add a New Desk</h2>
+          <Typography variant="h6" gutterBottom>
+            Add a New Desk
+          </Typography>
           <Button onClick={addDesk}>Create Desk</Button>
         </Modal>
 
-        {/* Modal: Book Desk */}
         <Modal open={!!bookingDesk} onClose={() => setBookingDesk(null)}>
-          <h2 className="text-lg font-semibold mb-4">Book Desk {bookingDesk?.id}</h2>
-          <form onSubmit={submitBooking} className="space-y-3">
+          <Typography variant="h6" gutterBottom>
+            Book Desk {bookingDesk?.id}
+          </Typography>
+          <Box component="form" onSubmit={submitBooking} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div>
-              <label className="block text-sm mb-1 text-slate-600">Start Time</label>
+              <label>Start Time</label>
               <input
                 type="datetime-local"
                 value={booking.start}
-                onChange={e => setBooking({ ...booking, start: e.target.value })}
-                className="w-full border px-3 py-2 rounded text-sm"
+                onChange={(e) => setBooking({ ...booking, start: e.target.value })}
+                style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
               />
             </div>
             <div>
-              <label className="block text-sm mb-1 text-slate-600">End Time</label>
+              <label>End Time</label>
               <input
                 type="datetime-local"
                 value={booking.end}
-                onChange={e => setBooking({ ...booking, end: e.target.value })}
-                className="w-full border px-3 py-2 rounded text-sm"
+                onChange={(e) => setBooking({ ...booking, end: e.target.value })}
+                style={{ width: '100%', padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" fullWidth>
               Book Desk
             </Button>
-          </form>
+          </Box>
         </Modal>
-      </div>
+      </Box>
     </Layout>
   );
 }

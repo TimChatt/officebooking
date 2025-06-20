@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Button from '../components/ui/Button.jsx';
+import {
+  Box,
+  Typography,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+} from '@mui/material';
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -29,34 +39,36 @@ export default function UsersPage() {
 
   return (
     <Layout>
-      <div>
-        <h1 className="text-2xl font-semibold mb-6">User Management</h1>
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          Users
+        </Typography>
 
-        <div className="bg-white rounded-lg border shadow-sm overflow-x-auto">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-slate-100 text-slate-700">
-              <tr>
-                <th className="px-4 py-2 border-b">Email</th>
-                <th className="px-4 py-2 border-b">Role</th>
-                <th className="px-4 py-2 border-b">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.id} className="hover:bg-slate-50 border-b last:border-none">
-                  <td className="px-4 py-2">{u.email}</td>
-                  <td className="px-4 py-2">{u.role}</td>
-                  <td className="px-4 py-2">
-                    <Button onClick={() => toggleRole(u)} size="sm">
+        <Paper sx={{ overflowX: 'auto' }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Email</TableCell>
+                <TableCell>Role</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {users.map((u) => (
+                <TableRow key={u.id} hover>
+                  <TableCell>{u.email}</TableCell>
+                  <TableCell>{u.role}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => toggleRole(u)} size="small">
                       Toggle Role
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </Paper>
+      </Box>
     </Layout>
   );
 }

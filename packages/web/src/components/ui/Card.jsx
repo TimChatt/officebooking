@@ -1,19 +1,13 @@
 import React from 'react';
-import clsx from 'clsx';
+import Paper from '@mui/material/Paper';
 
 /**
  * Simple card container using shadcn styles.
  */
-export default function Card({ className, children, ...props }) {
+export default function Card({ children, sx, ...props }) {
   return (
-    <div
-      className={clsx(
-        'rounded-lg border bg-white p-4 shadow-sm',
-        className
-      )}
-      {...props}
-    >
+    <Paper elevation={1} sx={{ p: 2, ...(sx || {}) }} {...props}>
       {children}
-    </div>
+    </Paper>
   );
 }

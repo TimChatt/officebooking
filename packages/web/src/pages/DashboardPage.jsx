@@ -1,19 +1,30 @@
 import React from 'react';
 import Card from '../components/ui/Card.jsx';
 import UtilizationChart from '../UtilizationChart.jsx';
+import { Box, Typography, Grid } from '@mui/material';
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Dashboard</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <UtilizationChart />
-        </Card>
-        <Card>Upcoming bookings</Card>
-        <Card>Desk status overview</Card>
-        <Card>Recent alerts</Card>
-      </div>
-    </div>
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        Dashboard
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <UtilizationChart />
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>Upcoming bookings</Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>Desk status overview</Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>Recent alerts</Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

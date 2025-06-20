@@ -211,6 +211,67 @@ app.delete('/bookings/:id', async (req, res) => {
   res.json(booking);
 });
 
+// Events
+app.get('/events', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM events ORDER BY event_time');
+  res.json(rows);
+});
+
+app.get('/events/:id', async (req, res) => {
+  const { id } = req.params;
+  const { rows } = await pool.query('SELECT * FROM events WHERE id=$1', [id]);
+  if (!rows.length) return res.status(404).json({ error: 'event not found' });
+  res.json(rows[0]);
+});
+
+app.post('/events', async (req, res) => {
+  const { title, description = null, event_time, visibility = 'public' } = req.body;
+  if (!title || !event_time) {
+    return res.status(400).json({ error: 'missing fields' });
+  }
+  const { rows } = await pool.query(
+    `INSERT INTO events (title, description, event_time, visibility)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [title, description, event_time, visibility]
+  );
+  res.status(201).json(rows[0]);
+});
+
+app.put('/events/:id', async (req, res) => {
+  const { id } = req.params;
+  const fields = { title: req.body.title, description: req.body.description, event_time: req.body.event_time, visibility: req.body.visibility };
+  const keys = Object.keys(fields).filter((k) => fields[k] !== undefined);
+  if (!keys.length) return res.status(400).json({ error: 'no fields to update' });
+  const set = keys.map((k, i) => `${k}=$${i + 1}`).join(', ');
+  const values = keys.map((k) => fields[k]);
+  values.push(id);
+  const { rows } = await pool.query(
+    `UPDATE events SET ${set} WHERE id=$${keys.length + 1} RETURNING *`,
+    values
+  );
+  if (!rows.length) return res.status(404).json({ error: 'event not found' });
+  res.json(rows[0]);
+});
+
+app.delete('/events/:id', async (req, res) => {
+  const { id } = req.params;
+  const { rows } = await pool.query('DELETE FROM events WHERE id=$1 RETURNING *', [id]);
+  if (!rows.length) return res.status(404).json({ error: 'event not found' });
+  res.json(rows[0]);
+});
+
+app.post('/events/:id/rsvp', async (req, res) => {
+  const eventId = req.params.id;
+  const { user_id, status } = req.body;
+  if (!user_id || !status) return res.status(400).json({ error: 'missing fields' });
+  const { rows } = await pool.query(
+    `INSERT INTO rsvps (event_id, user_id, status)
+     VALUES ($1, $2, $3) RETURNING *`,
+    [eventId, user_id, status]
+  );
+  res.status(201).json(rows[0]);
+});
+
 // User
 app.post('/users/me', async (req, res) => {
   res.json({ id: 'anon', email: 'test@example.com', role: 'user' });

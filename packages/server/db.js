@@ -46,6 +46,19 @@ async function init() {
       timestamp TIMESTAMPTZ DEFAULT NOW(),
       payload JSONB
     );
+    CREATE TABLE IF NOT EXISTS events (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      event_time TIMESTAMPTZ NOT NULL,
+      visibility VARCHAR(20) DEFAULT 'public'
+    );
+    CREATE TABLE IF NOT EXISTS rsvps (
+      id SERIAL PRIMARY KEY,
+      event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,
+      user_id VARCHAR(255) NOT NULL,
+      status VARCHAR(20)
+    );
     CREATE OR REPLACE VIEW daily_utilization AS
       SELECT date_trunc('day', start_time) AS day, COUNT(*) AS bookings
       FROM bookings

@@ -26,17 +26,17 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256',
 });
 
-// serve the public assets (if you have one)
-app.use(express.static(path.join(__dirname, '../web/public')));
+// at the very top, before any auth middleware:
+const webRoot = path.join(__dirname, '../web/public')
 
-// serve the raw src folder
-const webRoot = path.join(__dirname, '../web/src');
-app.use(express.static(webRoot));
+// serve all of public/ as static files
+app.use(express.static(webRoot))
 
-// always fall back to src/index.html so your client-side router works
+// “catch-all” — for any route not handled above, send back public/index.html
+// (so your client-side router can take over)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(webRoot, 'index.html'));
-});
+  res.sendFile(path.join(webRoot, 'index.html'))
+})
 
 const sendgridKey = process.env.SENDGRID_API_KEY;
 const alertEmail = process.env.ALERT_EMAIL;

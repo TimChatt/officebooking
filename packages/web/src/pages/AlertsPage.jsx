@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/layout';
+import Layout from '../components/Layout';
 import Button from '../components/ui/Button.jsx';
 
 export default function AlertsPage() {

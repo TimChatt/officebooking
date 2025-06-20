@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Button from './ui/Button.jsx';
-import { useChat } from '../context/ChatContext.js';
+import { useChat } from '../context/ChatContext.jsx';
 
 export default function ChatOverlay({ open, onClose }) {
   const { messages, loading, sendMessage } = useChat();

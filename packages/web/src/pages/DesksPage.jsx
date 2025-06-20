@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import Layout from '../components/layout';
 import Modal from '../components/ui/Modal.jsx';
 import Button from '../components/ui/Button.jsx';
-import Card from '../components/ui/Card.jsx';
 
 // Scale factor for converting desk units to pixels
 const SCALE = 40;
@@ -32,12 +32,27 @@ export default function DesksPage() {
 
   function startDrag(d, e) {
     e.preventDefault();
-    setDrag({ id: d.id, offsetX: e.clientX - d.x, offsetY: e.clientY - d.y, moved: false });
+    setDrag({
+      id: d.id,
+      offsetX: e.clientX - d.x * SCALE,
+      offsetY: e.clientY - d.y * SCALE,
+      moved: false
+    });
   }
 
   function onMouseMove(e) {
     if (!drag) return;
-    setDesks(ds => ds.map(d => d.id === drag.id ? { ...d, x: e.clientX - drag.offsetX, y: e.clientY - drag.offsetY } : d));
+    setDesks(ds =>
+      ds.map(d =>
+        d.id === drag.id
+          ? {
+              ...d,
+              x: Math.max(0, Math.round((e.clientX - drag.offsetX) / SCALE)),
+              y: Math.max(0, Math.round((e.clientY - drag.offsetY) / SCALE))
+            }
+          : d
+      )
+    );
     if (!drag.moved) setDrag({ ...drag, moved: true });
   }
 
@@ -74,44 +89,66 @@ export default function DesksPage() {
   }
 
   return (
-    <div onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
-      <Button onClick={() => setShowAdd(true)}>Add Desk</Button>
-      <div className="mt-4 relative w-full h-96 border">
-        {desks.map(d => (
-          <div
-            key={d.id}
-            onMouseDown={(e) => startDrag(d, e)}
-            className="absolute bg-gray-100 border flex items-center justify-center cursor-move select-none"
-            style={{ left: d.x * SCALE, top: d.y * SCALE, width: d.width * SCALE, height: d.height * SCALE }}
-          >
-            Desk {d.id}
-          </div>
-        ))}
+    <Layout>
+      <div onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
+        <h1 className="text-2xl font-semibold mb-6">Floor Plan</h1>
+
+        <div className="mb-4">
+          <Button onClick={() => setShowAdd(true)}>Add New Desk</Button>
+        </div>
+
+        <div className="relative w-full h-[500px] border rounded-lg bg-slate-50 overflow-hidden">
+          {desks.map(d => (
+            <div
+              key={d.id}
+              onMouseDown={e => startDrag(d, e)}
+              className="absolute bg-white border border-slate-300 text-xs font-medium shadow-sm hover:shadow-md transition cursor-move flex items-center justify-center rounded select-none"
+              style={{
+                left: d.x * SCALE,
+                top: d.y * SCALE,
+                width: d.width * SCALE,
+                height: d.height * SCALE
+              }}
+            >
+              Desk {d.id}
+            </div>
+          ))}
+        </div>
+
+        {/* Modal: Add Desk */}
+        <Modal open={showAdd} onClose={() => setShowAdd(false)}>
+          <h2 className="text-lg font-semibold mb-4">Add a New Desk</h2>
+          <Button onClick={addDesk}>Create Desk</Button>
+        </Modal>
+
+        {/* Modal: Book Desk */}
+        <Modal open={!!bookingDesk} onClose={() => setBookingDesk(null)}>
+          <h2 className="text-lg font-semibold mb-4">Book Desk {bookingDesk?.id}</h2>
+          <form onSubmit={submitBooking} className="space-y-3">
+            <div>
+              <label className="block text-sm mb-1 text-slate-600">Start Time</label>
+              <input
+                type="datetime-local"
+                value={booking.start}
+                onChange={e => setBooking({ ...booking, start: e.target.value })}
+                className="w-full border px-3 py-2 rounded text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm mb-1 text-slate-600">End Time</label>
+              <input
+                type="datetime-local"
+                value={booking.end}
+                onChange={e => setBooking({ ...booking, end: e.target.value })}
+                className="w-full border px-3 py-2 rounded text-sm"
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              Book Desk
+            </Button>
+          </form>
+        </Modal>
       </div>
-      <Modal open={showAdd} onClose={() => setShowAdd(false)}>
-        <h2 className="text-lg font-semibold mb-2">Add Desk</h2>
-        <Button onClick={addDesk}>Create</Button>
-      </Modal>
-      <Modal open={!!bookingDesk} onClose={() => setBookingDesk(null)}>
-        <h2 className="text-lg font-semibold mb-2">
-          Book Desk {bookingDesk?.id}
-        </h2>
-        <form onSubmit={submitBooking} className="space-y-2">
-          <input
-            type="datetime-local"
-            className="w-full border p-2 rounded"
-            value={booking.start}
-            onChange={e => setBooking({ ...booking, start: e.target.value })}
-          />
-          <input
-            type="datetime-local"
-            className="w-full border p-2 rounded"
-            value={booking.end}
-            onChange={e => setBooking({ ...booking, end: e.target.value })}
-          />
-          <Button type="submit">Book</Button>
-        </form>
-      </Modal>
-    </div>
+    </Layout>
   );
 }

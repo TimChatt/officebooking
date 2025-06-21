@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Modal from '../components/ui/Modal.jsx';
 import Button from '../components/ui/Button.jsx';
+import DeskTile from '../components/ui/DeskTile.jsx';
 import { Box, Typography, TextField, MenuItem } from '@mui/material';
 import { Rnd } from 'react-rnd';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 
-// Scale factor for converting desk units to pixels
-// Slightly larger for better visibility
 const SCALE = 50;
 const COMPANIES = ['Hawk-Eye', 'Pulselive', 'Beyond Sports', 'KinaTrax', 'Sony Sports'];
 
@@ -16,18 +15,17 @@ export default function DesksPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [bookingDesk, setBookingDesk] = useState(null);
   const [currentBooking, setCurrentBooking] = useState(null);
-  const [booking, setBooking] = useState({
-    name: 'Anon',
-    team: '',
-    company: COMPANIES[0],
-    date: dayjs(),
-  });
+  const [booking, setBooking] = useState({ name: 'Anon', team: '', company: COMPANIES[0], date: dayjs() });
   const [drag, setDrag] = useState(null);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [bookings, setBookings] = useState([]);
   const [locked, setLocked] = useState(false);
   const [objects, setObjects] = useState([]);
   const [newObject, setNewObject] = useState('Kitchen');
+
+  useEffect(() => { load(); }, []);
+  useEffect(() => { loadObjects(); }, []);
+  useEffect(() => { loadBookings(selectedDate); }, [selectedDate]);
 
   async function load() {
     const res = await fetch('/api/desks');
@@ -46,10 +44,6 @@ export default function DesksPage() {
     if (!res.ok) return;
     setBookings(await res.json());
   }
-
-  useEffect(() => { load(); }, []);
-  useEffect(() => { loadObjects(); }, []);
-  useEffect(() => { loadBookings(selectedDate); }, [selectedDate]);
 
   async function addDesk() {
     await fetch('/api/desks', {
@@ -96,11 +90,7 @@ export default function DesksPage() {
     setDesks(ds =>
       ds.map(d =>
         d.id === drag.id
-          ? {
-              ...d,
-              x: Math.max(0, Math.round((e.clientX - drag.offsetX) / SCALE)),
-              y: Math.max(0, Math.round((e.clientY - drag.offsetY) / SCALE))
-            }
+          ? { ...d, x: Math.max(0, Math.round((e.clientX - drag.offsetX) / SCALE)), y: Math.max(0, Math.round((e.clientY - drag.offsetY) / SCALE)) }
           : d
       )
     );
@@ -161,158 +151,105 @@ export default function DesksPage() {
 
   async function saveLayout() {
     await Promise.all([
-      ...desks.map(d =>
-        fetch(`/api/desks/${d.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(d)
-        })
-      ),
-      ...objects.map(o =>
-        fetch(`/api/objects/${o.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(o)
-        })
-      )
+      ...desks.map(d => fetch(`/api/desks/${d.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(d)
+      })),
+      ...objects.map(o => fetch(`/api/objects/${o.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(o)
+      }))
     ]);
   }
 
   return (
     <Box onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
-        <Typography variant="h5" gutterBottom>
-          Floor Plan
-        </Typography>
+      <Typography variant="h5" gutterBottom>Floor Plan</Typography>
 
-        <Box mb={2} maxWidth={200}>
-          <DatePicker
-            label="Select Date"
-            value={selectedDate}
-            onChange={(v) => v && setSelectedDate(v)}
-            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+      <Box mb={2} maxWidth={200}>
+        <DatePicker
+          label="Select Date"
+          value={selectedDate}
+          onChange={(v) => v && setSelectedDate(v)}
+          slotProps={{ textField: { size: 'small', fullWidth: true } }}
+        />
+      </Box>
+
+      <Box mb={2} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Button onClick={() => setShowAdd(true)}>Add New Desk</Button>
+        <TextField select size="small" value={newObject} onChange={(e) => setNewObject(e.target.value)}>
+          {['Kitchen', 'Meeting Room', 'Custom'].map((t) => (
+            <MenuItem key={t} value={t}>{t}</MenuItem>
+          ))}
+        </TextField>
+        <Button onClick={addObject}>Add Object</Button>
+        <Button onClick={() => setLocked(!locked)}>{locked ? 'Unlock Positions' : 'Lock Positions'}</Button>
+        <Button onClick={saveLayout}>Save Desk Layout</Button>
+      </Box>
+
+      <Box sx={{ position: 'relative', width: '100%', height: '70vh', border: '1px solid #ddd', borderRadius: 1, bgcolor: '#f1f5f9', overflow: 'hidden' }}>
+        {desks.map((d) => (
+          <DeskTile
+            key={d.id}
+            desk={d}
+            scale={SCALE}
+            drag={drag}
+            locked={locked}
+            bookings={bookings}
+            onStartDrag={startDrag}
+            getDeskInfo={getDeskInfo}
+            deskColor={deskColor}
           />
-        </Box>
+        ))}
 
-        <Box mb={2} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button onClick={() => setShowAdd(true)}>Add New Desk</Button>
-          <TextField select size="small" value={newObject} onChange={(e) => setNewObject(e.target.value)}>
-            {['Kitchen', 'Meeting Room', 'Custom'].map((t) => (
-              <MenuItem key={t} value={t}>{t}</MenuItem>
-            ))}
-          </TextField>
-          <Button onClick={addObject}>Add Object</Button>
-          <Button onClick={() => setLocked(!locked)}>
-            {locked ? 'Unlock Positions' : 'Lock Positions'}
-          </Button>
-          <Button onClick={saveLayout}>Save Desk Layout</Button>
-        </Box>
+        {objects.map((o) => (
+          <Rnd
+            key={`obj-${o.id}`}
+            size={{ width: o.width * SCALE, height: o.height * SCALE }}
+            position={{ x: o.x * SCALE, y: o.y * SCALE }}
+            bounds="parent"
+            onDragStop={(e, d) => setObjects(os => os.map(obj => obj.id === o.id ? { ...obj, x: Math.round(d.x / SCALE), y: Math.round(d.y / SCALE) } : obj))}
+            onResizeStop={(e, dir, ref, delta, position) => setObjects(os => os.map(obj => obj.id === o.id ? {
+              ...obj,
+              width: Math.round(ref.offsetWidth / SCALE),
+              height: Math.round(ref.offsetHeight / SCALE),
+              x: Math.round(position.x / SCALE),
+              y: Math.round(position.y / SCALE)
+            } : obj))}
+            enableResizing={!locked}
+            disableDragging={locked}
+            style={{ border: '1px dashed #666', backgroundColor: '#e0f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}
+          >
+            {o.label}
+          </Rnd>
+        ))}
+      </Box>
 
-        <Box
-          sx={{ position: 'relative', width: '100%', height: '70vh', border: '1px solid #ddd', borderRadius: 1, bgcolor: '#f1f5f9', overflow: 'hidden' }}
-        >
-          {desks.map((d) => (
-            <Box
-              key={d.id}
-              onMouseDown={(e) => startDrag(d, e)}
-              sx={{
-                position: 'absolute',
-                left: d.x * SCALE,
-                top: d.y * SCALE,
-                width: d.width * SCALE,
-                height: d.height * SCALE,
-                bgcolor: deskColor(getDeskInfo(d.id).status),
-                border: '1px solid #cbd5e1',
-                fontSize: 12,
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 1,
-                cursor: 'move',
-                boxShadow: 1,
-                '&:hover': { boxShadow: 3 },
-                userSelect: 'none',
-              }}
-            >
-              {getDeskInfo(d.id).booking ? (
-                <Box sx={{ textAlign: 'center' }}>
-                  <div>{getDeskInfo(d.id).booking.name}</div>
-                  <div style={{ fontSize: 10 }}>{getDeskInfo(d.id).booking.team}</div>
-                </Box>
-              ) : (
-                `Desk ${d.id}`
-              )}
-            </Box>
-          ))}
-          {objects.map((o) => (
-            <Rnd
-              key={`obj-${o.id}`}
-              size={{ width: o.width * SCALE, height: o.height * SCALE }}
-              position={{ x: o.x * SCALE, y: o.y * SCALE }}
-              bounds="parent"
-              onDragStop={(e, d) => {
-                setObjects(os => os.map(obj => obj.id === o.id ? { ...obj, x: Math.round(d.x / SCALE), y: Math.round(d.y / SCALE) } : obj));
-              }}
-              onResizeStop={(e, dir, ref, delta, position) => {
-                setObjects(os => os.map(obj => obj.id === o.id ? {
-                  ...obj,
-                  width: Math.round(ref.offsetWidth / SCALE),
-                  height: Math.round(ref.offsetHeight / SCALE),
-                  x: Math.round(position.x / SCALE),
-                  y: Math.round(position.y / SCALE)
-                } : obj));
-              }}
-              enableResizing={!locked}
-              disableDragging={locked}
-              style={{
-                border: '1px dashed #666',
-                backgroundColor: '#e0f7fa',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 12,
-              }}
-            >
-              {o.label}
-            </Rnd>
-          ))}
-        </Box>
+      <Modal open={showAdd} onClose={() => setShowAdd(false)}>
+        <Typography variant="h6" gutterBottom>Add a New Desk</Typography>
+        <Button onClick={addDesk}>Create Desk</Button>
+      </Modal>
 
-        <Modal open={showAdd} onClose={() => setShowAdd(false)}>
-          <Typography variant="h6" gutterBottom>
-            Add a New Desk
+      <Modal open={!!bookingDesk} onClose={() => setBookingDesk(null)}>
+        <Typography variant="h6" gutterBottom>Book Desk {bookingDesk?.id}</Typography>
+        {currentBooking && (
+          <Typography sx={{ mb: 2 }}>
+            Booked by {currentBooking.name} ({currentBooking.team}, {currentBooking.company})
           </Typography>
-          <Button onClick={addDesk}>Create Desk</Button>
-        </Modal>
-
-        <Modal open={!!bookingDesk} onClose={() => setBookingDesk(null)}>
-          <Typography variant="h6" gutterBottom>
-            Book Desk {bookingDesk?.id}
-          </Typography>
-          {currentBooking ? (
-            <Typography sx={{ mb: 2 }}>
-              Booked by {currentBooking.name} ({currentBooking.team}, {currentBooking.company})
-            </Typography>
-          ) : null}
+        )}
         <Box component="form" onSubmit={submitBooking} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField label="Name" size="small" fullWidth value={booking.name} onChange={(e) => setBooking({ ...booking, name: e.target.value })} />
           <TextField label="Team" size="small" fullWidth value={booking.team} onChange={(e) => setBooking({ ...booking, team: e.target.value })} />
           <TextField select label="Company" size="small" fullWidth value={booking.company} onChange={(e) => setBooking({ ...booking, company: e.target.value })}>
-            {COMPANIES.map((c) => (
-              <MenuItem key={c} value={c}>{c}</MenuItem>
-            ))}
+            {COMPANIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
           </TextField>
           <DatePicker label="Date" value={booking.date} onChange={(v) => v && setBooking({ ...booking, date: v })} slotProps={{ textField: { size: 'small', fullWidth: true } }} />
-          {!currentBooking && (
-            <Button type="submit" fullWidth>
-              Book Desk
-            </Button>
-          )}
-          <Button color="error" onClick={() => removeDesk(bookingDesk.id)} fullWidth>
-            Delete Desk
-          </Button>
+          {!currentBooking && <Button type="submit" fullWidth>Book Desk</Button>}
+          <Button color="error" onClick={() => removeDesk(bookingDesk.id)} fullWidth>Delete Desk</Button>
         </Box>
-        </Modal>
-      </Box>
+      </Modal>
+    </Box>
   );
 }

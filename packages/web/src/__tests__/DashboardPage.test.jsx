@@ -1,5 +1,6 @@
 import { render, screen, act, waitFor } from '@testing-library/react';
 import DashboardPage from '../pages/DashboardPage.jsx';
+import { ChatProvider } from '../context/ChatContext.jsx';
 import '@testing-library/jest-dom';
 
 beforeAll(() => {
@@ -10,7 +11,11 @@ beforeAll(() => {
 
 test('renders dashboard heading', async () => {
   await act(async () => {
-    render(<DashboardPage />);
+    render(
+      <ChatProvider>
+        <DashboardPage />
+      </ChatProvider>
+    );
   });
   await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   expect(screen.getByRole('heading', { name: /dashboard/i })).toBeInTheDocument();

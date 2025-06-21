@@ -173,15 +173,29 @@ api.delete('/objects/:id', async (req, res) => {
 
 // Bookings
 api.get('/bookings', async (req, res) => {
-  const { start, end } = req.query;
+  const { start, end, user, team } = req.query;
+  const conditions = [];
+  const values = [];
+  let idx = 1;
   if (start && end) {
-    const { rows } = await pool.query(
-      'SELECT * FROM bookings WHERE NOT ($2 <= start_time OR $1 >= end_time) ORDER BY start_time DESC',
-      [start, end]
-    );
-    return res.json(rows);
+    conditions.push(`NOT ($${idx + 1} <= start_time OR $${idx} >= end_time)`);
+    values.push(start, end);
+    idx += 2;
   }
-  const { rows } = await pool.query('SELECT * FROM bookings ORDER BY start_time DESC');
+  if (user) {
+    conditions.push(`user_id = $${idx}`);
+    values.push(user);
+    idx++;
+  }
+  if (team) {
+    conditions.push(`team ILIKE $${idx}`);
+    values.push(team);
+    idx++;
+  }
+  let query = 'SELECT * FROM bookings';
+  if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
+  query += ' ORDER BY start_time DESC';
+  const { rows } = await pool.query(query, values);
   res.json(rows);
 });
 
@@ -499,9 +513,32 @@ api.get('/forecast', async (req, res) => {
 // Chatbot
 api.post('/chatbot', async (req, res) => {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return res.status(501).json({ error: 'chatbot not configured' });
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'missing message' });
+
+  // Basic lookup for bookings by team or person before hitting OpenAI
+  const teamMatch = message.match(/team\s+([\w-]+)/i);
+  const personMatch = message.match(/(?:user|person|name)\s+([\w-]+)/i);
+  const lookupValue = teamMatch?.[1] || personMatch?.[1];
+  const lookupField = teamMatch ? 'team' : personMatch ? 'name' : null;
+  if (lookupField && lookupValue) {
+    try {
+      const { rows } = await pool.query(
+        `SELECT start_time FROM bookings WHERE ${lookupField} ILIKE $1 ORDER BY start_time`,
+        [lookupValue]
+      );
+      if (!rows.length) {
+        return res.json({ reply: `No bookings found for ${lookupValue}.` });
+      }
+      const dates = [...new Set(rows.map(r => new Date(r.start_time).toLocaleDateString()))];
+      return res.json({ reply: `${lookupValue} has bookings on: ${dates.join(', ')}` });
+    } catch (err) {
+      console.error('lookup failed', err);
+      return res.status(500).json({ error: 'lookup failed' });
+    }
+  }
+
+  if (!apiKey) return res.status(501).json({ error: 'chatbot not configured' });
 
   try {
     const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {

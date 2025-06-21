@@ -14,6 +14,8 @@ import {
   Box,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import ChatButton from './ChatButton.jsx';
+import ChatOverlay from './ChatOverlay.jsx';
 
 const navItems = [
   { name: 'Dashboard', icon: <Home size={18} />, href: '/dashboard' },
@@ -25,6 +27,7 @@ const navItems = [
 
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const drawerWidth = 240;
 
@@ -89,6 +92,8 @@ export default function Layout({ children }) {
         <Toolbar />
         {children}
       </Box>
+      <ChatButton onClick={() => setChatOpen(true)} />
+      <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />
     </Box>
   );
 }

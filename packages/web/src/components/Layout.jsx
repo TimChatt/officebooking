@@ -117,18 +117,22 @@ export default function Layout({ children }) {
             >
               <MenuIcon />
             </IconButton>
+
+            <Typography variant="h6" fontWeight={700} sx={{ mr: 2 }}>
+              Office Booking
+            </Typography>
+
             <img
               src="/sony-group.png"
               alt="Sony Group"
-              style={{ height: 28, marginRight: 12 }}
+              style={{
+                height: '38px', // slightly larger
+                maxWidth: '180px',
+                objectFit: 'contain',
+              }}
             />
-            <Typography variant="h6" fontWeight={700}>
-              Office Booking
-            </Typography>
           </Box>
-          <Box>
-            {/* Avatar or settings */}
-          </Box>
+          <Box>{/* Optional: profile/settings icons */}</Box>
         </Toolbar>
       </AppBar>
 

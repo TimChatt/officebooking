@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar } from 'recharts';
 import Card from '../components/ui/Card.jsx';
 import { Box, Typography, Grid, Paper } from '@mui/material';
@@ -22,8 +21,7 @@ export default function AnalyticsPage() {
   const total = daily.reduce((a, b) => a + b.bookings, 0);
 
   return (
-    <Layout>
-      <Box>
+    <Box>
         <Typography variant="h5" gutterBottom>
           Analytics
         </Typography>
@@ -93,6 +91,5 @@ export default function AnalyticsPage() {
           </Grid>
         </Grid>
       </Box>
-    </Layout>
   );
 }

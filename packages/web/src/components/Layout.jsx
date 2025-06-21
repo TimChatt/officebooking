@@ -17,7 +17,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 const navItems = [
   { name: 'Dashboard', icon: <Home size={18} />, href: '/dashboard' },
-  { name: 'Book a Desk', icon: <Calendar size={18} />, href: '/bookings' },
+  { name: 'Book a Desk', icon: <Calendar size={18} />, href: '/desks' },
+  { name: 'Manage Bookings', icon: <Calendar size={18} />, href: '/bookings' },
   { name: 'Forecast', icon: <BarChart2 size={18} />, href: '/analytics' },
   { name: 'Events', icon: <CalendarDays size={18} />, href: '/events' },
 ];
@@ -25,8 +26,10 @@ const navItems = [
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
 
+  const drawerWidth = 240;
+
   const drawer = (
-    <Box sx={{ width: 240 }} onClick={() => setOpen(false)} role="presentation">
+    <Box sx={{ width: drawerWidth }} onClick={() => setOpen(false)} role="presentation">
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
           Office Booking
@@ -75,13 +78,14 @@ export default function Layout({ children }) {
         variant="permanent"
         sx={{
           display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { width: 240, boxSizing: 'border-box' },
+          flexShrink: 0,
+          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' },
         }}
         open
       >
         {drawer}
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { md: `${drawerWidth}px` } }}>
         <Toolbar />
         {children}
       </Box>

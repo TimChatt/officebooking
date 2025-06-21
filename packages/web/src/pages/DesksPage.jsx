@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
 import Modal from '../components/ui/Modal.jsx';
 import Button from '../components/ui/Button.jsx';
 import { Box, Typography, TextField, MenuItem } from '@mui/material';
@@ -48,6 +47,12 @@ export default function DesksPage() {
       body: JSON.stringify({ x: 1, y: 1, width: 1, height: 1 })
     });
     setShowAdd(false);
+    load();
+  }
+
+  async function removeDesk(id) {
+    await fetch(`/api/desks/${id}`, { method: 'DELETE' });
+    setBookingDesk(null);
     load();
   }
 
@@ -128,8 +133,7 @@ export default function DesksPage() {
   }
 
   return (
-    <Layout>
-      <Box onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
+    <Box onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
         <Typography variant="h5" gutterBottom>
           Floor Plan
         </Typography>
@@ -148,7 +152,7 @@ export default function DesksPage() {
         </Box>
 
         <Box
-          sx={{ position: 'relative', width: '100%', height: 500, border: '1px solid #ddd', borderRadius: 1, bgcolor: '#f1f5f9', overflow: 'hidden' }}
+          sx={{ position: 'relative', width: '100%', height: '70vh', border: '1px solid #ddd', borderRadius: 1, bgcolor: '#f1f5f9', overflow: 'hidden' }}
         >
           {desks.map((d) => (
             <Box
@@ -202,23 +206,25 @@ export default function DesksPage() {
               Booked by {currentBooking.name} ({currentBooking.team}, {currentBooking.company})
             </Typography>
           ) : null}
-          <Box component="form" onSubmit={submitBooking} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField label="Name" size="small" fullWidth value={booking.name} onChange={(e) => setBooking({ ...booking, name: e.target.value })} />
-            <TextField label="Team" size="small" fullWidth value={booking.team} onChange={(e) => setBooking({ ...booking, team: e.target.value })} />
-            <TextField select label="Company" size="small" fullWidth value={booking.company} onChange={(e) => setBooking({ ...booking, company: e.target.value })}>
-              {COMPANIES.map((c) => (
-                <MenuItem key={c} value={c}>{c}</MenuItem>
-              ))}
-            </TextField>
-            <DatePicker label="Date" value={booking.date} onChange={(v) => v && setBooking({ ...booking, date: v })} slotProps={{ textField: { size: 'small', fullWidth: true } }} />
-            {!currentBooking && (
-              <Button type="submit" fullWidth>
-                Book Desk
-              </Button>
-            )}
-          </Box>
+        <Box component="form" onSubmit={submitBooking} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField label="Name" size="small" fullWidth value={booking.name} onChange={(e) => setBooking({ ...booking, name: e.target.value })} />
+          <TextField label="Team" size="small" fullWidth value={booking.team} onChange={(e) => setBooking({ ...booking, team: e.target.value })} />
+          <TextField select label="Company" size="small" fullWidth value={booking.company} onChange={(e) => setBooking({ ...booking, company: e.target.value })}>
+            {COMPANIES.map((c) => (
+              <MenuItem key={c} value={c}>{c}</MenuItem>
+            ))}
+          </TextField>
+          <DatePicker label="Date" value={booking.date} onChange={(v) => v && setBooking({ ...booking, date: v })} slotProps={{ textField: { size: 'small', fullWidth: true } }} />
+          {!currentBooking && (
+            <Button type="submit" fullWidth>
+              Book Desk
+            </Button>
+          )}
+          <Button color="error" onClick={() => removeDesk(bookingDesk.id)} fullWidth>
+            Delete Desk
+          </Button>
+        </Box>
         </Modal>
       </Box>
-    </Layout>
   );
 }

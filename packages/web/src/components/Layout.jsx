@@ -17,7 +17,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 const navItems = [
   { name: 'Dashboard', icon: <Home size={18} />, href: '/dashboard' },
-  { name: 'Book a Desk', icon: <Calendar size={18} />, href: '/bookings' },
+  { name: 'Book a Desk', icon: <Calendar size={18} />, href: '/desks' },
+  { name: 'Manage Bookings', icon: <Calendar size={18} />, href: '/bookings' },
   { name: 'Forecast', icon: <BarChart2 size={18} />, href: '/analytics' },
   { name: 'Events', icon: <CalendarDays size={18} />, href: '/events' },
 ];

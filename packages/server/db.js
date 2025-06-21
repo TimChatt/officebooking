@@ -24,8 +24,16 @@ async function init() {
       user_id VARCHAR(255) NOT NULL,
       desk_id INTEGER REFERENCES desks(id),
       start_time TIMESTAMPTZ NOT NULL,
-      end_time TIMESTAMPTZ NOT NULL
+      end_time TIMESTAMPTZ NOT NULL,
+      name VARCHAR(255),
+      team VARCHAR(255),
+      company VARCHAR(100),
+      recurring_id UUID
     );
+    ALTER TABLE bookings ADD COLUMN IF NOT EXISTS name VARCHAR(255);
+    ALTER TABLE bookings ADD COLUMN IF NOT EXISTS team VARCHAR(255);
+    ALTER TABLE bookings ADD COLUMN IF NOT EXISTS company VARCHAR(100);
+    ALTER TABLE bookings ADD COLUMN IF NOT EXISTS recurring_id UUID;
     CREATE TABLE IF NOT EXISTS desk_blocks (
       id SERIAL PRIMARY KEY,
       desk_id INTEGER REFERENCES desks(id),

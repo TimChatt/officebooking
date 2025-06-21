@@ -117,20 +117,17 @@ export default function Layout({ children }) {
             >
               <MenuIcon />
             </IconButton>
-
-            {/* ➕ ADDED: Logo Image next to Office Booking */}
             <img
               src="/sony-group.png"
               alt="Sony Group"
-              style={{ height: '36px', marginRight: '12px' }}
+              style={{ height: 28, marginRight: 12 }}
             />
-
             <Typography variant="h6" fontWeight={700}>
               Office Booking
             </Typography>
           </Box>
           <Box>
-            {/* Avatar or Settings icons can go here */}
+            {/* Avatar or settings */}
           </Box>
         </Toolbar>
       </AppBar>

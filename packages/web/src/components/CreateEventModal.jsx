@@ -35,6 +35,13 @@ export default function CreateEventModal({ open, onClose, form, setForm, onSubmi
           value={form.event_time}
           onChange={(e) => setForm({ ...form, event_time: e.target.value })}
         />
+        <TextField
+          label="Tags (comma separated)"
+          size="small"
+          fullWidth
+          value={form.tags}
+          onChange={(e) => setForm({ ...form, tags: e.target.value })}
+        />
         <Button type="submit" fullWidth>
           Create Event
         </Button>

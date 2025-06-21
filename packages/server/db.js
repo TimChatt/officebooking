@@ -68,8 +68,10 @@ async function init() {
       title VARCHAR(255) NOT NULL,
       description TEXT,
       event_time TIMESTAMPTZ NOT NULL,
-      visibility VARCHAR(20) DEFAULT 'public'
+      visibility VARCHAR(20) DEFAULT 'public',
+      tags TEXT[] DEFAULT '{}'
     );
+    ALTER TABLE events ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
     CREATE TABLE IF NOT EXISTS rsvps (
       id SERIAL PRIMARY KEY,
       event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,

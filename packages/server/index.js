@@ -138,6 +138,10 @@ app.post('/bookings', async (req, res) => {
     return res.status(400).json({ error: 'missing fields' });
   }
 
+  if (new Date(start_time) >= new Date(end_time)) {
+    return res.status(400).json({ error: 'invalid time range' });
+  }
+
 
   const [blockConflicts, conflicts] = await Promise.all([
     pool.query(
@@ -183,6 +187,10 @@ app.put('/bookings/:id', async (req, res) => {
     (await pool.query('SELECT desk_id FROM bookings WHERE id=$1', [id])).rows[0]?.desk_id;
 
   if (!start || !end || !desk) return res.status(404).json({ error: 'booking not found' });
+
+  if (new Date(start) >= new Date(end)) {
+    return res.status(400).json({ error: 'invalid time range' });
+  }
 
   const [blockConflicts, conflicts] = await Promise.all([
     pool.query(

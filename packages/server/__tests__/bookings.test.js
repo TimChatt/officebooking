@@ -29,7 +29,12 @@ test('POST /bookings validates fields', async () => {
 test('POST /bookings detects conflict', async () => {
   db.pool.query.mockResolvedValueOnce({ rows: [{ id: 1 }] });
   const app = createApp();
-  const payload = { user_id: 'u1', desk_id: 1, start_time: 's', end_time: 'e' };
+  const payload = {
+    user_id: 'u1',
+    desk_id: 1,
+    start_time: '2023-01-01T10:00:00Z',
+    end_time: '2023-01-01T11:00:00Z'
+  };
   const res = await request(app).post('/bookings').send(payload);
   expect(res.statusCode).toBe(409);
 });
@@ -40,8 +45,36 @@ test('POST /bookings creates booking', async () => {
     .mockResolvedValueOnce({ rows: [] })
     .mockResolvedValueOnce({ rows: [{ id: 1 }] });
   const app = createApp();
-  const payload = { user_id: 'u1', desk_id: 1, start_time: 's', end_time: 'e' };
+  const payload = {
+    user_id: 'u1',
+    desk_id: 1,
+    start_time: '2023-01-01T10:00:00Z',
+    end_time: '2023-01-01T11:00:00Z'
+  };
   const res = await request(app).post('/bookings').send(payload);
   expect(res.statusCode).toBe(201);
   expect(res.body).toEqual({ id: 1 });
+});
+
+test('POST /bookings rejects invalid time range', async () => {
+  const app = createApp();
+  const payload = {
+    user_id: 'u1',
+    desk_id: 1,
+    start_time: '2023-01-02T10:00:00Z',
+    end_time: '2023-01-02T09:00:00Z'
+  };
+  const res = await request(app).post('/bookings').send(payload);
+  expect(res.statusCode).toBe(400);
+});
+
+test('PUT /bookings rejects invalid time range', async () => {
+  db.pool.query.mockResolvedValue({ rows: [{ desk_id: 1 }] });
+  const app = createApp();
+  const payload = {
+    start_time: '2023-01-02T10:00:00Z',
+    end_time: '2023-01-02T09:00:00Z'
+  };
+  const res = await request(app).put('/bookings/1').send(payload);
+  expect(res.statusCode).toBe(400);
 });

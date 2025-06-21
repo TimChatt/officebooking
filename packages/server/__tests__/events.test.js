@@ -63,3 +63,12 @@ test('POST /events/:id/rsvp creates rsvp', async () => {
     ['1', 'u1', 'yes']
   );
 });
+
+test('GET /events/upcoming returns aggregated rows', async () => {
+  db.pool.query.mockResolvedValue({ rows: [{ id: 1 }] });
+  const app = createApp();
+  const res = await request(app).get('/api/events/upcoming');
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toEqual([{ id: 1 }]);
+  expect(db.pool.query).toHaveBeenCalledWith(expect.stringContaining('FROM events e'));
+});

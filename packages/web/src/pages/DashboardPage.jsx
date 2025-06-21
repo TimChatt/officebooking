@@ -19,6 +19,7 @@ import { CalendarMonth, Cancel } from '@mui/icons-material';
 
 export default function DashboardPage() {
   const [bookings, setBookings] = useState([]);
+  const [events, setEvents] = useState([]);
   const [recommend, setRecommend] = useState(null);
   const [calendarDate, setCalendarDate] = useState(dayjs());
 
@@ -41,6 +42,10 @@ export default function DashboardPage() {
     (async () => {
       const rRes = await fetch('/api/recommendation');
       if (rRes.ok) setRecommend(await rRes.json());
+    })();
+    (async () => {
+      const eRes = await fetch('/api/events/upcoming');
+      if (eRes.ok) setEvents(await eRes.json());
     })();
   }, [calendarDate]);
 
@@ -114,6 +119,31 @@ export default function DashboardPage() {
               {!bookings.length && (
                 <ListItem>
                   <ListItemText primary="No upcoming bookings" />
+                </ListItem>
+              )}
+            </List>
+          </Card>
+        </Grid>
+
+        {/* Upcoming Events */}
+        <Grid item xs={12} md={4}>
+          <Card sx={{ boxShadow: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              What's Happening This Week
+            </Typography>
+            <Divider sx={{ mb: 1 }} />
+            <List dense>
+              {events.map((ev) => (
+                <ListItem key={ev.id} sx={{ py: 1, px: 0 }}>
+                  <ListItemText
+                    primary={ev.title}
+                    secondary={`${dayjs(ev.event_time).format('ddd D MMM, HH:mm')} – ${ev.yes_count || 0} going`}
+                  />
+                </ListItem>
+              ))}
+              {!events.length && (
+                <ListItem>
+                  <ListItemText primary="No events this week" />
                 </ListItem>
               )}
             </List>

@@ -1,13 +1,15 @@
 import { createTheme } from '@mui/material/styles';
 
+const accent = '#a6b1e1';
+
 const theme = createTheme({
   palette: {
     background: {
-      default: 'var(--bg)',
-      paper: 'var(--card-bg)',
+      default: '#f1f3f6',
+      paper: '#e4e9f2',
     },
     primary: {
-      main: 'var(--accent)',
+      main: accent,
     },
   },
   shape: {

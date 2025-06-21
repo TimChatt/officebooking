@@ -17,12 +17,6 @@ export default function ChatWidget() {
     }
   }, [messages]);
 
-  const suggestions = [
-    'Show me my bookings for this week',
-    'What desks are available on Friday?',
-    'Who has booked Desk 12?',
-    'Which day is the busiest this month?',
-  ];
 
   async function submit(e) {
     e.preventDefault();
@@ -31,10 +25,6 @@ export default function ChatWidget() {
     setText('');
   }
 
-  function handleSuggestion(t) {
-    sendMessage(t);
-    setOpen(true);
-  }
 
   return (
     <div style={{ position: 'fixed', bottom: 16, right: 16, zIndex: 50 }}>
@@ -64,21 +54,9 @@ export default function ChatWidget() {
               ))}
               {loading && <div style={{ textAlign: 'center', color: '#666' }}>...</div>}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-              {suggestions.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleSuggestion(s)}
-                  className="chat-trigger"
-                  style={{ height: 'auto', padding: '4px 8px', fontSize: '12px' }}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
             <form onSubmit={submit} style={{ display: 'flex', gap: 4 }}>
               <input
-                style={{ flex: 1, padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                style={{ flex: 1, padding: 8, borderRadius: 4, border: '1px solid #ccc', fontSize: '14px' }}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />

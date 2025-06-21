@@ -16,7 +16,7 @@ export default function AlertsPage() {
   const [alerts, setAlerts] = useState([]);
 
   async function load() {
-    const res = await fetch('/alerts');
+    const res = await fetch('/api/alerts');
     if (res.ok) {
       const data = await res.json();
       setAlerts(data.alerts || []);

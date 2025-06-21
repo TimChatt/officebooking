@@ -21,7 +21,7 @@ export default function EventsPage() {
   const [rsvpEvent, setRsvpEvent] = useState(null);
 
   async function load() {
-    const res = await fetch('/events');
+    const res = await fetch('/api/events');
     if (res.ok) setEvents(await res.json());
   }
 
@@ -31,7 +31,7 @@ export default function EventsPage() {
 
   async function submitCreate(e) {
     e.preventDefault();
-    const res = await fetch('/events', {
+    const res = await fetch('/api/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -45,7 +45,7 @@ export default function EventsPage() {
 
   async function sendRsvp(status) {
     if (!rsvpEvent) return;
-    const res = await fetch(`/events/${rsvpEvent.id}/rsvp`, {
+    const res = await fetch(`/api/events/${rsvpEvent.id}/rsvp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: 'anon', status }),

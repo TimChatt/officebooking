@@ -15,14 +15,14 @@ beforeEach(() => {
 test('GET /bookings returns rows', async () => {
   db.pool.query.mockResolvedValue({ rows: [{ id: 1 }] });
   const app = createApp();
-  const res = await request(app).get('/bookings');
+  const res = await request(app).get('/api/bookings');
   expect(res.statusCode).toBe(200);
   expect(res.body).toEqual([{ id: 1 }]);
 });
 
 test('POST /bookings validates fields', async () => {
   const app = createApp();
-  const res = await request(app).post('/bookings').send({});
+  const res = await request(app).post('/api/bookings').send({});
   expect(res.statusCode).toBe(400);
 });
 
@@ -38,7 +38,7 @@ test('POST /bookings detects conflict', async () => {
     team: 'T',
     company: 'Hawk-Eye'
   };
-  const res = await request(app).post('/bookings').send(payload);
+  const res = await request(app).post('/api/bookings').send(payload);
   expect(res.statusCode).toBe(409);
 });
 
@@ -57,7 +57,7 @@ test('POST /bookings creates booking', async () => {
     team: 'T',
     company: 'Hawk-Eye'
   };
-  const res = await request(app).post('/bookings').send(payload);
+  const res = await request(app).post('/api/bookings').send(payload);
   expect(res.statusCode).toBe(201);
   expect(res.body).toEqual({ id: 1 });
 });
@@ -73,7 +73,7 @@ test('POST /bookings rejects invalid time range', async () => {
     team: 'T',
     company: 'Hawk-Eye'
   };
-  const res = await request(app).post('/bookings').send(payload);
+  const res = await request(app).post('/api/bookings').send(payload);
   expect(res.statusCode).toBe(400);
 });
 
@@ -84,7 +84,7 @@ test('PUT /bookings rejects invalid time range', async () => {
     start_time: '2023-01-02T10:00:00Z',
     end_time: '2023-01-02T09:00:00Z'
   };
-  const res = await request(app).put('/bookings/1').send(payload);
+  const res = await request(app).put('/api/bookings/1').send(payload);
   expect(res.statusCode).toBe(400);
 });
 
@@ -104,7 +104,7 @@ test('POST /bookings enforces weekly cap', async () => {
     team: 'T',
     company: 'Hawk-Eye'
   };
-  const res = await request(app).post('/bookings').send(payload);
+  const res = await request(app).post('/api/bookings').send(payload);
   expect(res.statusCode).toBe(409);
   delete process.env.BOOKING_LIMIT;
 });

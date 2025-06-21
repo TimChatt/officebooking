@@ -12,6 +12,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Divider,
 } from '@mui/material';
 
 export default function DashboardPage() {
@@ -58,17 +59,20 @@ export default function DashboardPage() {
     end: b.end_time,
   }));
 
+  const formattedMonth = calendarDate.format('MMMM YYYY');
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
         My Dashboard
       </Typography>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ minHeight: 250 }}>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ maxHeight: 350, overflowY: 'auto' }}>
             <Typography variant="h6" gutterBottom>
               Upcoming Bookings
             </Typography>
+            <Divider sx={{ mb: 1 }} />
             <List dense>
               {bookings.slice(0, 5).map((b) => (
                 <ListItem
@@ -94,11 +98,17 @@ export default function DashboardPage() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Card sx={{ minHeight: 250 }}>
-            <Typography variant="h6" gutterBottom>
-              Calendar
-            </Typography>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ minHeight: 350 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6" gutterBottom>
+                Calendar
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500, color: 'gray' }}>
+                {formattedMonth}
+              </Typography>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
             <FullCalendar
               plugins={[dayGridPlugin]}
               initialView="dayGridMonth"

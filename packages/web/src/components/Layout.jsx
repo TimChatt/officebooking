@@ -11,8 +11,11 @@ import {
   ListItemIcon,
   ListItemText,
   IconButton,
+  Avatar,
+  Badge,
   Box,
 } from '@mui/material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChatButton from './ChatButton.jsx';
 import ChatOverlay from './ChatOverlay.jsx';
@@ -32,11 +35,10 @@ export default function Layout({ children }) {
 
   const drawer = (
     <Box
+      className="neumorphic"
       sx={{
         width: drawerWidth,
         height: '100%',
-        bgcolor: '#f4f5f7',
-        borderRight: '1px solid #e0e0e0',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -46,6 +48,7 @@ export default function Layout({ children }) {
       <Box>
         <Typography
           variant="h6"
+          component="div"
           sx={{
             fontWeight: 700,
             textAlign: 'center',
@@ -62,7 +65,7 @@ export default function Layout({ children }) {
                 component="a"
                 href={item.href}
                 sx={{
-                  borderRadius: '12px',
+                  borderRadius: 'var(--radius)',
                   px: 2.5,
                   py: 1.5,
                   fontWeight: 500,
@@ -70,13 +73,13 @@ export default function Layout({ children }) {
                   color: '#1f1f1f',
                   transition: 'all 0.2s ease-in-out',
                   '&:hover': {
-                    bgcolor: '#e8ebfd',
+                    bgcolor: 'rgba(166,177,225,0.2)',
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    color: '#4f46e5',
+                    color: 'var(--accent)',
                     minWidth: '36px',
                     display: 'flex',
                     justifyContent: 'center',
@@ -94,16 +97,16 @@ export default function Layout({ children }) {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f8f9fc' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'var(--bg)' }}>
       <AppBar
         position="fixed"
         elevation={3}
         sx={{
           zIndex: (t) => t.zIndex.drawer + 1,
-          bgcolor: '#ffffff',
+          background: 'linear-gradient(to bottom, var(--card-bg), #fff)',
           color: '#1f1f1f',
           borderBottom: '1px solid #e0e0e0',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          boxShadow: 'var(--shadow-light)',
           px: 3,
         }}
       >
@@ -132,7 +135,14 @@ export default function Layout({ children }) {
               }}
             />
           </Box>
-          <Box>{/* Optional: profile/settings icons */}</Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton color="inherit">
+              <Badge color="error" variant="dot" overlap="circular">
+                <NotificationsIcon className="bell-ring" />
+              </Badge>
+            </IconButton>
+            <Avatar sx={{ width: 32, height: 32, ml: 1 }}>U</Avatar>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -141,7 +151,13 @@ export default function Layout({ children }) {
         open={open}
         onClose={() => setOpen(false)}
         ModalProps={{ keepMounted: true }}
-        sx={{ display: { xs: 'block', md: 'none' } }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            bgcolor: 'var(--bg)',
+            boxShadow: 'var(--shadow-light), var(--shadow-dark)',
+          },
+        }}
       >
         {drawer}
       </Drawer>
@@ -154,7 +170,8 @@ export default function Layout({ children }) {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            bgcolor: '#f4f5f7',
+            bgcolor: 'var(--bg)',
+            boxShadow: 'var(--shadow-light), var(--shadow-dark)',
           },
         }}
         open
@@ -164,16 +181,16 @@ export default function Layout({ children }) {
 
       <Box
         component="main"
+        className="neumorphic"
         sx={{
           flexGrow: 1,
           mt: 2,
           p: 4,
           ml: { md: `${drawerWidth}px` },
           borderRadius: '20px',
-          background: '#ffffff',
+          background: 'var(--card-bg)',
           minHeight: 'calc(100vh - 64px)',
           transition: 'all 0.3s ease-in-out',
-          boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
         }}
       >
         <Toolbar />

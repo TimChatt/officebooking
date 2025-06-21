@@ -11,6 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Paper,
 } from '@mui/material';
 
 export default function DashboardPage() {
@@ -51,14 +52,14 @@ export default function DashboardPage() {
   }));
 
   return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
         My Dashboard
       </Typography>
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Card sx={{ minHeight: 250 }}>
-            <Typography variant="subtitle1" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Upcoming Bookings
             </Typography>
             <List dense>
@@ -85,9 +86,10 @@ export default function DashboardPage() {
             </List>
           </Card>
         </Grid>
+
         <Grid item xs={12} md={6}>
           <Card sx={{ minHeight: 250 }}>
-            <Typography variant="subtitle1" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Calendar
             </Typography>
             <FullCalendar
@@ -98,9 +100,10 @@ export default function DashboardPage() {
             />
           </Card>
         </Grid>
+
         <Grid item xs={12} md={6}>
           <Card sx={{ minHeight: 250 }}>
-            <Typography variant="subtitle1" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Events
             </Typography>
             <List dense>
@@ -132,20 +135,25 @@ export default function DashboardPage() {
             </List>
           </Card>
         </Grid>
+
         <Grid item xs={12} md={6}>
           <Card sx={{ minHeight: 250 }}>
-            <Typography variant="subtitle1" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Usage Stats
             </Typography>
             <UtilizationChart />
           </Card>
         </Grid>
+
         <Grid item xs={12}>
           <Card>
+            <Typography variant="h6" gutterBottom>
+              Suggested Desk
+            </Typography>
             {recommend ? (
-              <Typography>Suggested Desk: {recommend.id}</Typography>
+              <Typography variant="body1">Desk {recommend.id}</Typography>
             ) : (
-              <Typography>No recommendation available</Typography>
+              <Typography variant="body2">No recommendation available</Typography>
             )}
           </Card>
         </Grid>

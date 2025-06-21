@@ -9,6 +9,9 @@ const {
   logEvent,
   getUsers,
   updateUserRole,
+  getUserSettings,
+  saveUserProfile,
+  saveUserIntegrations,
   updateBooking,
   deleteBooking,
   deleteDesk,
@@ -420,6 +423,30 @@ api.put('/users/:id/role', requireAdmin, async (req, res) => {
   if (!role) return res.status(400).json({ error: 'missing role' });
   const user = await updateUserRole(id, role);
   res.json(user);
+});
+
+// Settings for the current user
+api.get('/settings', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anon';
+  const data = await getUserSettings(userId);
+  res.json({
+    profile: { name: data?.name || '', email: data?.email || '' },
+    integrations: { slack: data?.slack_webhook || '', google: data?.google_api_key || '' },
+  });
+});
+
+api.put('/settings/profile', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anon';
+  const { name = '', email = '' } = req.body;
+  const data = await saveUserProfile(userId, name, email);
+  res.json({ name: data.name, email: data.email });
+});
+
+api.put('/settings/integrations', async (req, res) => {
+  const userId = req.headers['x-user-id'] || 'anon';
+  const { slack = '', google = '' } = req.body;
+  const data = await saveUserIntegrations(userId, slack, google);
+  res.json({ slack: data.slack_webhook, google: data.google_api_key });
 });
 
 // Analytics

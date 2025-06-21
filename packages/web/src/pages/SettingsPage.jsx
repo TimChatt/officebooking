@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../components/ui/Card.jsx';
 import Button from '../components/ui/Button.jsx';
 import { Box, Typography, TextField } from '@mui/material';
@@ -7,14 +7,31 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState({ name: '', email: '' });
   const [integrations, setIntegrations] = useState({ slack: '', google: '' });
 
-  const saveProfile = e => {
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(r => r.json())
+      .then(data => {
+        if (data.profile) setProfile(data.profile);
+        if (data.integrations) setIntegrations(data.integrations);
+      });
+  }, []);
+
+  const saveProfile = async e => {
     e.preventDefault();
-    console.log('save profile', profile);
+    await fetch('/api/settings/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profile)
+    });
   };
 
-  const saveIntegrations = e => {
+  const saveIntegrations = async e => {
     e.preventDefault();
-    console.log('save integrations', integrations);
+    await fetch('/api/settings/integrations', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(integrations)
+    });
   };
 
   return (

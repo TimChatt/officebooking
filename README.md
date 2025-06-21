@@ -47,5 +47,6 @@ npm start
 - Rich analytics including heatmaps, team reports and peak time graphs
 - Desk recommendation and forecast-based alerts
 - Optional email/SMS notifications and chatbot support
+- Book desks directly in the chat widget
 
 Deployment is handled via GitHub Actions and Railway.

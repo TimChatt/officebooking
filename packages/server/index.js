@@ -589,6 +589,41 @@ api.post('/chatbot', async (req, res) => {
     return res.json({ reply: "You're welcome!" });
   }
 
+  // Book desk command: "book desk 5 on 2023-01-01"
+  const bookMatch = message.match(/book\s+(?:desk|seat)\s+(\d+)\s+on\s+(\d{4}-\d{2}-\d{2})/i);
+  if (bookMatch) {
+    const deskId = Number(bookMatch[1]);
+    const day = bookMatch[2];
+    const start = new Date(day).toISOString();
+    const end = new Date(new Date(day).getTime() + 24 * 3600 * 1000).toISOString();
+    try {
+      const [blockConflicts, conflicts] = await Promise.all([
+        pool.query(
+          `SELECT 1 FROM desk_blocks WHERE desk_id=$1 AND NOT ($3 <= start_time OR $2 >= end_time)`,
+          [deskId, start, end]
+        ),
+        pool.query(
+          `SELECT 1 FROM bookings WHERE desk_id=$1 AND NOT ($3 <= start_time OR $2 >= end_time)`,
+          [deskId, start, end]
+        ),
+      ]);
+      if (blockConflicts.rows.length)
+        return res.json({ reply: `Desk ${deskId} is blocked on ${day}.` });
+      if (conflicts.rows.length)
+        return res.json({ reply: `Desk ${deskId} is already booked on ${day}.` });
+
+      await pool.query(
+        `INSERT INTO bookings (user_id, desk_id, start_time, end_time, name) VALUES ($1, $2, $3, $4, $5)`,
+        ['anon', deskId, start, end, 'Anon']
+      );
+      await logEvent('booking_created', { user_id: 'anon', desk_id: deskId, start_time: start, end_time: end });
+      return res.json({ reply: `Booked desk ${deskId} for ${day}.` });
+    } catch (err) {
+      console.error('chatbot booking failed', err);
+      return res.status(500).json({ error: 'booking failed' });
+    }
+  }
+
   // Basic lookup for bookings by team or person before hitting OpenAI
   const teamMatch = message.match(/team\s+([\w-]+)/i);
   const personMatch = message.match(/(?:user|person|name)\s+([\w-]+)/i);

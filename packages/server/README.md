@@ -27,7 +27,7 @@ This creates a basic floor plan in the database.
 - `POST /api/desks/:id/blocks` and `DELETE /api/desks/:deskId/blocks/:blockId`
 - `GET /api/analytics/daily` and `GET /api/analytics/weekly`
 - `/api/forecast`, `/api/recommendation`, `/api/alerts`
-- `/api/chatbot`
+- `/api/chatbot` – answers questions and can book desks when asked
 - `/api/users` management routes
 
 ## Tests

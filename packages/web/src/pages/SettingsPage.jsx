@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Layout from '../components/Layout';
 import Card from '../components/ui/Card.jsx';
 import Button from '../components/ui/Button.jsx';
 import { Box, Typography, TextField } from '@mui/material';
@@ -19,8 +18,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <Layout>
-      <Box>
+    <Box>
         <Typography variant="h5" gutterBottom>
           Settings
         </Typography>
@@ -69,7 +67,6 @@ export default function SettingsPage() {
           </Box>
         </Card>
       </Box>
-    </Layout>
   );
 }
 

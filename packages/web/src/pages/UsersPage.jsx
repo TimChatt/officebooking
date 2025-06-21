@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
 import Button from '../components/ui/Button.jsx';
 import {
   Box,
@@ -38,8 +37,7 @@ export default function UsersPage() {
   }
 
   return (
-    <Layout>
-      <Box>
+    <Box>
         <Typography variant="h5" gutterBottom>
           Users
         </Typography>
@@ -69,6 +67,5 @@ export default function UsersPage() {
           </Table>
         </Paper>
       </Box>
-    </Layout>
   );
 }

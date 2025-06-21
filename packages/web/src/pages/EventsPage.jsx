@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout.jsx';
 import Button from '../components/ui/Button.jsx';
 import CreateEventModal from '../components/CreateEventModal.jsx';
 import RsvpModal from '../components/RsvpModal.jsx';
@@ -54,8 +53,7 @@ export default function EventsPage() {
   }
 
   return (
-    <Layout>
-      <Box>
+    <Box>
         <Typography variant="h5" gutterBottom>
           Events
         </Typography>
@@ -104,6 +102,5 @@ export default function EventsPage() {
           onSelect={sendRsvp}
         />
       </Box>
-    </Layout>
   );
 }

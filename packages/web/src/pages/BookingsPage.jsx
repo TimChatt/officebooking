@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
 import Button from '../components/ui/Button.jsx';
 import {
   Box,
@@ -84,8 +83,7 @@ export default function BookingsPage() {
   }
 
   return (
-    <Layout>
-      <Box>
+    <Box>
         <Typography variant="h5" gutterBottom>
           Manage Bookings
         </Typography>
@@ -202,6 +200,5 @@ export default function BookingsPage() {
           </Table>
         </Paper>
       </Box>
-    </Layout>
   );
 }

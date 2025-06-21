@@ -50,7 +50,15 @@ export default function DeskTile({
           },
         }}
       >
-        <Box sx={{ textAlign: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}
+        >
           <ChairIcon
             sx={{
               color: isBooked ? '#d32f2f' : isMine ? '#388e3c' : '#333',

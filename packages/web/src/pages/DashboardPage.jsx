@@ -115,10 +115,16 @@ export default function DashboardPage() {
               height={250}
               events={calendarEvents}
               headerToolbar={false}
-              datesSet={(arg) => {
-                const newDate = dayjs(arg.start);
-                setCalendarDate(newDate);
-                loadBookingsForMonth(newDate);
+              fixedWeekCount={false}
+              showNonCurrentDates={false}
+              dateClick={(info) => {
+                const clickedDate = dayjs(info.dateStr).format('YYYY-MM-DD');
+                window.location.href = `/desks?date=${clickedDate}`;
+              }}
+              datesSet={() => {
+                const currentMonthStart = dayjs().startOf('month');
+                setCalendarDate(currentMonthStart);
+                loadBookingsForMonth(currentMonthStart);
               }}
             />
           </Card>

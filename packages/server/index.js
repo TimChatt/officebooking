@@ -325,6 +325,14 @@ api.delete('/bookings/:id', async (req, res) => {
 
 // Events
 api.get('/events', async (req, res) => {
+  const { tag } = req.query;
+  if (tag) {
+    const { rows } = await pool.query(
+      'SELECT * FROM events WHERE $1 = ANY(tags) ORDER BY event_time',
+      [tag]
+    );
+    return res.json(rows);
+  }
   const { rows } = await pool.query('SELECT * FROM events ORDER BY event_time');
   res.json(rows);
 });
@@ -337,21 +345,33 @@ api.get('/events/:id', async (req, res) => {
 });
 
 api.post('/events', async (req, res) => {
-  const { title, description = null, event_time, visibility = 'public' } = req.body;
+  const {
+    title,
+    description = null,
+    event_time,
+    visibility = 'public',
+    tags = [],
+  } = req.body;
   if (!title || !event_time) {
     return res.status(400).json({ error: 'missing fields' });
   }
   const { rows } = await pool.query(
-    `INSERT INTO events (title, description, event_time, visibility)
-     VALUES ($1, $2, $3, $4) RETURNING *`,
-    [title, description, event_time, visibility]
+    `INSERT INTO events (title, description, event_time, visibility, tags)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [title, description, event_time, visibility, tags]
   );
   res.status(201).json(rows[0]);
 });
 
 api.put('/events/:id', async (req, res) => {
   const { id } = req.params;
-  const fields = { title: req.body.title, description: req.body.description, event_time: req.body.event_time, visibility: req.body.visibility };
+  const fields = {
+    title: req.body.title,
+    description: req.body.description,
+    event_time: req.body.event_time,
+    visibility: req.body.visibility,
+    tags: req.body.tags,
+  };
   const keys = Object.keys(fields).filter((k) => fields[k] !== undefined);
   if (!keys.length) return res.status(400).json({ error: 'no fields to update' });
   const set = keys.map((k, i) => `${k}=$${i + 1}`).join(', ');

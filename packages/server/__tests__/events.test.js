@@ -30,13 +30,25 @@ test('POST /events validates fields', async () => {
 test('POST /events creates event', async () => {
   db.pool.query.mockResolvedValue({ rows: [{ id: 1 }] });
   const app = createApp();
-  const payload = { title: 't', event_time: 'now' };
+  const payload = { title: 't', event_time: 'now', tags: ['social'] };
   const res = await request(app).post('/api/events').send(payload);
   expect(res.statusCode).toBe(201);
   expect(res.body).toEqual({ id: 1 });
   expect(db.pool.query).toHaveBeenCalledWith(
     expect.stringContaining('INSERT INTO events'),
-    ['t', null, 'now', 'public']
+    ['t', null, 'now', 'public', ['social']]
+  );
+});
+
+test('GET /events filter by tag', async () => {
+  db.pool.query.mockResolvedValue({ rows: [{ id: 2 }] });
+  const app = createApp();
+  const res = await request(app).get('/api/events?tag=social');
+  expect(res.statusCode).toBe(200);
+  expect(res.body).toEqual([{ id: 2 }]);
+  expect(db.pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM events WHERE $1 = ANY(tags) ORDER BY event_time',
+    ['social']
   );
 });
 

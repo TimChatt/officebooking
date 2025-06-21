@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import Card from '../components/ui/Card.jsx';
 import Button from '../components/ui/Button.jsx';
 import UtilizationChart from '../UtilizationChart.jsx';
@@ -11,38 +12,44 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper,
 } from '@mui/material';
 
 export default function DashboardPage() {
   const [bookings, setBookings] = useState([]);
   const [events, setEvents] = useState([]);
   const [recommend, setRecommend] = useState(null);
+  const [calendarDate, setCalendarDate] = useState(dayjs());
 
-  async function load() {
-    const [bRes, eRes, rRes] = await Promise.all([
-      fetch('/api/bookings?user=anon'),
-      fetch('/api/events'),
-      fetch('/api/recommendation'),
-    ]);
-    if (bRes.ok) {
-      const data = await bRes.json();
+  async function loadBookingsForMonth(date) {
+    const startOfMonth = dayjs(date).startOf('month').toISOString();
+    const endOfMonth = dayjs(date).endOf('month').toISOString();
+
+    const res = await fetch(`/api/bookings?user=anon&start=${startOfMonth}&end=${endOfMonth}`);
+    if (res.ok) {
+      const data = await res.json();
       const upcoming = data.filter(
         (b) => new Date(b.start_time) > new Date()
       );
       setBookings(upcoming);
     }
-    if (eRes.ok) setEvents(await eRes.json());
-    if (rRes.ok) setRecommend(await rRes.json());
   }
 
   useEffect(() => {
-    load();
+    loadBookingsForMonth(calendarDate);
+
+    (async () => {
+      const [eRes, rRes] = await Promise.all([
+        fetch('/api/events'),
+        fetch('/api/recommendation'),
+      ]);
+      if (eRes.ok) setEvents(await eRes.json());
+      if (rRes.ok) setRecommend(await rRes.json());
+    })();
   }, []);
 
   async function cancel(id) {
     await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
-    load();
+    loadBookingsForMonth(calendarDate);
   }
 
   const calendarEvents = bookings.map((b) => ({
@@ -97,6 +104,12 @@ export default function DashboardPage() {
               initialView="dayGridMonth"
               height={250}
               events={calendarEvents}
+              headerToolbar={false}
+              datesSet={(arg) => {
+                const newDate = dayjs(arg.start);
+                setCalendarDate(newDate);
+                loadBookingsForMonth(newDate);
+              }}
             />
           </Card>
         </Grid>

@@ -57,3 +57,9 @@ body {
   box-shadow: var(--shadow-light), var(--shadow-dark);
   font-size: 14px;
 }
+
+/* heatmap color scale */
+.react-calendar-heatmap .color-scale-1 { fill: #bbf7d0; }
+.react-calendar-heatmap .color-scale-2 { fill: #86efac; }
+.react-calendar-heatmap .color-scale-3 { fill: #eab308; }
+.react-calendar-heatmap .color-scale-4 { fill: #dc2626; }

@@ -6,7 +6,7 @@ import { Box } from '@mui/material';
 export default function CalendarHeatmapChart({ values, onClick }) {
   // values should be array of { date: 'YYYY-MM-DD', count: number }
   return (
-    <Box sx={{ '& .color-empty': { fill: '#e2e8f0' } }}>
+    <Box sx={{ width: '100%', '& .color-empty': { fill: '#e2e8f0' } }}>
       <CalendarHeatmap
         startDate={values.length ? values[0].date : new Date()}
         endDate={values.length ? values[values.length - 1].date : new Date()}

@@ -47,7 +47,7 @@ body {
 }
 
 .chat-window {
-  width: 320px;
+  width: 420px;
   max-height: 420px;
   display: flex;
   flex-direction: column;
@@ -55,4 +55,5 @@ body {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow-light), var(--shadow-dark);
+  font-size: 14px;
 }

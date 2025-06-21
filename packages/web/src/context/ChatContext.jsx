@@ -6,7 +6,7 @@ export function ChatProvider({ children }) {
   const [messages, setMessages] = useState([
     {
       from: 'bot',
-      content: "Hi there! I'm your Booking Assistant \ud83d\udc4b \u2014 how can I help you today?",
+      content: "Hi there! I'm your Booking Assistant \ud83d\udc4b \u2014 how can I help you today?\nYou can book a desk by typing something like 'book desk 5 on 2023-01-01'.",
     },
   ]);
   const [loading, setLoading] = useState(false);

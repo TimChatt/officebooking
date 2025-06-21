@@ -12,6 +12,7 @@ import {
   ListItemText,
   IconButton,
   Box,
+  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChatButton from './ChatButton.jsx';
@@ -28,32 +29,69 @@ const navItems = [
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-
   const drawerWidth = 240;
 
   const drawer = (
-    <Box sx={{ width: drawerWidth }} onClick={() => setOpen(false)} role="presentation">
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
+    <Box
+      sx={{
+        width: drawerWidth,
+        height: '100%',
+        bgcolor: '#f9f9fb',
+        borderRight: '1px solid #e0e0e0',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        p: 2,
+      }}
+    >
+      <Box>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+            textAlign: 'center',
+            mb: 4,
+            color: '#4f46e5',
+          }}
+        >
           Office Booking
         </Typography>
-      </Toolbar>
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item.name} disablePadding>
-            <ListItemButton component="a" href={item.href}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+        <List>
+          {navItems.map((item) => (
+            <ListItem key={item.name} disablePadding sx={{ mb: 1 }}>
+              <ListItemButton
+                component="a"
+                href={item.href}
+                sx={{
+                  borderRadius: '12px',
+                  color: '#333',
+                  '&:hover': {
+                    bgcolor: '#e8eaf6',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: '#4f46e5' }}>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <AppBar position="fixed" sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f0f2f5' }}>
+      <AppBar
+        position="fixed"
+        elevation={0}
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1,
+          bgcolor: '#ffffff',
+          color: '#333',
+          borderBottom: '1px solid #e0e0e0',
+        }}
+      >
         <Toolbar>
           <IconButton
             color="inherit"
@@ -68,6 +106,7 @@ export default function Layout({ children }) {
           </Typography>
         </Toolbar>
       </AppBar>
+
       <Drawer
         variant="temporary"
         open={open}
@@ -77,21 +116,36 @@ export default function Layout({ children }) {
       >
         {drawer}
       </Drawer>
+
       <Drawer
         variant="permanent"
         sx={{
           display: { xs: 'none', md: 'block' },
           flexShrink: 0,
-          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' },
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            bgcolor: '#f9f9fb',
+          },
         }}
         open
       >
         {drawer}
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { md: `${drawerWidth}px` } }}>
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 4,
+          ml: { md: `${drawerWidth}px` },
+          transition: 'all 0.3s ease-in-out',
+        }}
+      >
         <Toolbar />
         {children}
       </Box>
+
       <ChatButton onClick={() => setChatOpen(true)} />
       <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />
     </Box>

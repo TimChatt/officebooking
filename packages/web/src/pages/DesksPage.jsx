@@ -26,14 +26,14 @@ export default function DesksPage() {
   const [bookings, setBookings] = useState([]);
 
   async function load() {
-    const res = await fetch('/desks');
+    const res = await fetch('/api/desks');
     if (res.ok) setDesks(await res.json());
   }
 
   async function loadBookings(date) {
     const start = dayjs(date).startOf('day');
     const end = dayjs(date).endOf('day');
-    const res = await fetch(`/bookings?start=${start.toISOString()}&end=${end.toISOString()}`);
+    const res = await fetch(`/api/bookings?start=${start.toISOString()}&end=${end.toISOString()}`);
     if (!res.ok) return;
     setBookings(await res.json());
   }
@@ -42,7 +42,7 @@ export default function DesksPage() {
   useEffect(() => { loadBookings(selectedDate); }, [selectedDate]);
 
   async function addDesk() {
-    await fetch('/desks', {
+    await fetch('/api/desks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ x: 1, y: 1, width: 1, height: 1 })
@@ -88,7 +88,7 @@ export default function DesksPage() {
       setBooking({ name: 'Anon', team: '', company: COMPANIES[0], date: selectedDate });
       return;
     }
-    await fetch(`/desks/${d.id}`, {
+    await fetch(`/api/desks/${d.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(d)
@@ -98,7 +98,7 @@ export default function DesksPage() {
   async function submitBooking(e) {
     e.preventDefault();
     if (!bookingDesk) return;
-    await fetch('/bookings', {
+    await fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

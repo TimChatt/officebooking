@@ -24,10 +24,10 @@ export default function BookingsPage() {
   const [form, setForm] = useState({ id: null, desk_id: '', start: '', end: '', name: '', team: '', company: 'Hawk-Eye', repeat: '' });
 
   async function load() {
-    const bRes = await fetch('/bookings');
+    const bRes = await fetch('/api/bookings');
     if (bRes.ok) setBookings(await bRes.json());
 
-    const dRes = await fetch('/desks');
+    const dRes = await fetch('/api/desks');
     if (dRes.ok) setDesks(await dRes.json());
   }
 
@@ -38,7 +38,7 @@ export default function BookingsPage() {
   async function submit(e) {
     e.preventDefault();
     const method = form.id ? 'PUT' : 'POST';
-    const url = form.id ? `/bookings/${form.id}` : '/bookings';
+    const url = form.id ? `/api/bookings/${form.id}` : '/api/bookings';
 
     const res = await fetch(url, {
       method,
@@ -74,12 +74,12 @@ export default function BookingsPage() {
   }
 
   async function del(id) {
-    await fetch(`/bookings/${id}`, { method: 'DELETE' });
+    await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
     load();
   }
 
   async function delFuture(id) {
-    await fetch(`/bookings/${id}?future=true`, { method: 'DELETE' });
+    await fetch(`/api/bookings/${id}?future=true`, { method: 'DELETE' });
     load();
   }
 

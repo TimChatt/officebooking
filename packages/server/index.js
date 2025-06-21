@@ -17,6 +17,7 @@ const { checkJwt } = require('./auth');
 
 function createApp() {
   const app = express();
+  const api = express.Router();
 
   // at the very top, before any auth middleware:
   // serve the built frontend from packages/web/dist
@@ -54,12 +55,12 @@ app.get('/health', (req, res) => {
 app.use(checkJwt);
 
 // Desks
-app.get('/desks', async (req, res) => {
+api.get('/desks', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM desks ORDER BY id');
   res.json(rows);
 });
 
-app.post('/desks', async (req, res) => {
+api.post('/desks', async (req, res) => {
   const { x, y, width, height, status = 'available' } = req.body;
   if ([x, y, width, height].some((v) => typeof v !== 'number')) {
     return res.status(400).json({ error: 'invalid desk fields' });
@@ -72,7 +73,7 @@ app.post('/desks', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-app.put('/desks/:id', async (req, res) => {
+api.put('/desks/:id', async (req, res) => {
   const id = Number(req.params.id);
   const { x, y, width, height, status = 'available' } = req.body;
   if ([x, y, width, height].some((v) => typeof v !== 'number')) {
@@ -88,14 +89,14 @@ app.put('/desks/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-app.delete('/desks/:id', async (req, res) => {
+api.delete('/desks/:id', async (req, res) => {
   const id = Number(req.params.id);
   const desk = await deleteDesk(id);
   if (!desk) return res.status(404).json({ error: 'desk not found' });
   res.json(desk);
 });
 
-app.get('/desks/:id/blocks', async (req, res) => {
+api.get('/desks/:id/blocks', async (req, res) => {
   const deskId = Number(req.params.id);
   const { rows } = await pool.query(
     'SELECT * FROM desk_blocks WHERE desk_id=$1 ORDER BY start_time',
@@ -104,7 +105,7 @@ app.get('/desks/:id/blocks', async (req, res) => {
   res.json(rows);
 });
 
-app.post('/desks/:id/blocks', async (req, res) => {
+api.post('/desks/:id/blocks', async (req, res) => {
   const deskId = Number(req.params.id);
   const { start_time, end_time } = req.body;
   if (!start_time || !end_time) return res.status(400).json({ error: 'missing fields' });
@@ -116,7 +117,7 @@ app.post('/desks/:id/blocks', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-app.delete('/desks/:deskId/blocks/:blockId', async (req, res) => {
+api.delete('/desks/:deskId/blocks/:blockId', async (req, res) => {
   const { deskId, blockId } = req.params;
   const { rows } = await pool.query(
     'DELETE FROM desk_blocks WHERE id=$1 AND desk_id=$2 RETURNING *',
@@ -127,7 +128,7 @@ app.delete('/desks/:deskId/blocks/:blockId', async (req, res) => {
 });
 
 // Bookings
-app.get('/bookings', async (req, res) => {
+api.get('/bookings', async (req, res) => {
   const { start, end } = req.query;
   if (start && end) {
     const { rows } = await pool.query(
@@ -140,7 +141,7 @@ app.get('/bookings', async (req, res) => {
   res.json(rows);
 });
 
-app.post('/bookings', async (req, res) => {
+api.post('/bookings', async (req, res) => {
   const {
     user_id,
     desk_id,
@@ -207,7 +208,7 @@ app.post('/bookings', async (req, res) => {
   res.status(201).json(repeatCount === 1 ? created[0] : created);
 });
 
-app.put('/bookings/:id', async (req, res) => {
+api.put('/bookings/:id', async (req, res) => {
   const id = Number(req.params.id);
   const { desk_id, start_time, end_time, name, team, company } = req.body;
   if (!desk_id && !start_time && !end_time && !name && !team && !company) {
@@ -247,7 +248,7 @@ app.put('/bookings/:id', async (req, res) => {
   res.json(booking);
 });
 
-app.delete('/bookings/:id', async (req, res) => {
+api.delete('/bookings/:id', async (req, res) => {
   const id = Number(req.params.id);
   const future = req.query.future === 'true';
   const { rows } = await pool.query('SELECT * FROM bookings WHERE id=$1', [id]);
@@ -265,19 +266,19 @@ app.delete('/bookings/:id', async (req, res) => {
 });
 
 // Events
-app.get('/events', async (req, res) => {
+api.get('/events', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM events ORDER BY event_time');
   res.json(rows);
 });
 
-app.get('/events/:id', async (req, res) => {
+api.get('/events/:id', async (req, res) => {
   const { id } = req.params;
   const { rows } = await pool.query('SELECT * FROM events WHERE id=$1', [id]);
   if (!rows.length) return res.status(404).json({ error: 'event not found' });
   res.json(rows[0]);
 });
 
-app.post('/events', async (req, res) => {
+api.post('/events', async (req, res) => {
   const { title, description = null, event_time, visibility = 'public' } = req.body;
   if (!title || !event_time) {
     return res.status(400).json({ error: 'missing fields' });
@@ -290,7 +291,7 @@ app.post('/events', async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
-app.put('/events/:id', async (req, res) => {
+api.put('/events/:id', async (req, res) => {
   const { id } = req.params;
   const fields = { title: req.body.title, description: req.body.description, event_time: req.body.event_time, visibility: req.body.visibility };
   const keys = Object.keys(fields).filter((k) => fields[k] !== undefined);
@@ -306,14 +307,14 @@ app.put('/events/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-app.delete('/events/:id', async (req, res) => {
+api.delete('/events/:id', async (req, res) => {
   const { id } = req.params;
   const { rows } = await pool.query('DELETE FROM events WHERE id=$1 RETURNING *', [id]);
   if (!rows.length) return res.status(404).json({ error: 'event not found' });
   res.json(rows[0]);
 });
 
-app.post('/events/:id/rsvp', async (req, res) => {
+api.post('/events/:id/rsvp', async (req, res) => {
   const eventId = req.params.id;
   const { user_id, status } = req.body;
   if (!user_id || !status) return res.status(400).json({ error: 'missing fields' });
@@ -326,16 +327,16 @@ app.post('/events/:id/rsvp', async (req, res) => {
 });
 
 // User
-app.post('/users/me', async (req, res) => {
+api.post('/users/me', async (req, res) => {
   res.json({ id: 'anon', email: 'test@example.com', role: 'user' });
 });
 
-app.get('/users', requireAdmin, async (req, res) => {
+api.get('/users', requireAdmin, async (req, res) => {
   const users = await getUsers();
   res.json(users);
 });
 
-app.put('/users/:id/role', requireAdmin, async (req, res) => {
+api.put('/users/:id/role', requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
   if (!role) return res.status(400).json({ error: 'missing role' });
@@ -344,24 +345,24 @@ app.put('/users/:id/role', requireAdmin, async (req, res) => {
 });
 
 // Analytics
-app.get('/analytics', async (req, res) => {
+api.get('/analytics', async (req, res) => {
   const { rows } = await pool.query(
     'SELECT desk_id, event_type, timestamp FROM analytics ORDER BY timestamp DESC'
   );
   res.json(rows);
 });
 
-app.get('/analytics/daily', async (req, res) => {
+api.get('/analytics/daily', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM daily_utilization');
   res.json(rows);
 });
 
-app.get('/analytics/weekly', async (req, res) => {
+api.get('/analytics/weekly', async (req, res) => {
   const { rows } = await pool.query('SELECT * FROM weekly_utilization');
   res.json(rows);
 });
 
-app.get('/recommendation', async (req, res) => {
+api.get('/recommendation', async (req, res) => {
   const { rows } = await pool.query(
     `SELECT d.* FROM desks d
      LEFT JOIN (
@@ -422,7 +423,7 @@ async function sendAlertSms(alerts) {
   }
 }
 
-app.get('/alerts', async (req, res) => {
+api.get('/alerts', async (req, res) => {
   try {
     const fRes = await fetch(`${forecastUrl}/forecast`);
     const fData = await fRes.json();
@@ -440,7 +441,7 @@ app.get('/alerts', async (req, res) => {
 });
 
 // Proxy forecast data from the Python service
-app.get('/forecast', async (req, res) => {
+api.get('/forecast', async (req, res) => {
   try {
     const fRes = await fetch(`${forecastUrl}/forecast`);
     const data = await fRes.json();
@@ -452,7 +453,7 @@ app.get('/forecast', async (req, res) => {
 });
 
 // Chatbot
-app.post('/chatbot', async (req, res) => {
+api.post('/chatbot', async (req, res) => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(501).json({ error: 'chatbot not configured' });
   const { message } = req.body;
@@ -480,10 +481,13 @@ app.post('/chatbot', async (req, res) => {
   }
 });
 
-// Fallback for SPA routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(webRoot, 'index.html'));
-});
+  // Mount API router
+  app.use('/api', api);
+
+  // Fallback for SPA routes
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(webRoot, 'index.html'));
+  });
 
   return app;
 }

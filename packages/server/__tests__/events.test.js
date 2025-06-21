@@ -15,7 +15,7 @@ beforeEach(() => {
 test('GET /events returns rows', async () => {
   db.pool.query.mockResolvedValue({ rows: [{ id: 1 }] });
   const app = createApp();
-  const res = await request(app).get('/events');
+  const res = await request(app).get('/api/events');
   expect(res.statusCode).toBe(200);
   expect(res.body).toEqual([{ id: 1 }]);
   expect(db.pool.query).toHaveBeenCalledWith('SELECT * FROM events ORDER BY event_time');
@@ -23,7 +23,7 @@ test('GET /events returns rows', async () => {
 
 test('POST /events validates fields', async () => {
   const app = createApp();
-  const res = await request(app).post('/events').send({});
+  const res = await request(app).post('/api/events').send({});
   expect(res.statusCode).toBe(400);
 });
 
@@ -31,7 +31,7 @@ test('POST /events creates event', async () => {
   db.pool.query.mockResolvedValue({ rows: [{ id: 1 }] });
   const app = createApp();
   const payload = { title: 't', event_time: 'now' };
-  const res = await request(app).post('/events').send(payload);
+  const res = await request(app).post('/api/events').send(payload);
   expect(res.statusCode).toBe(201);
   expect(res.body).toEqual({ id: 1 });
   expect(db.pool.query).toHaveBeenCalledWith(
@@ -43,7 +43,7 @@ test('POST /events creates event', async () => {
 test('POST /events/:id/rsvp creates rsvp', async () => {
   db.pool.query.mockResolvedValue({ rows: [{ id: 1 }] });
   const app = createApp();
-  const res = await request(app).post('/events/1/rsvp').send({ user_id: 'u1', status: 'yes' });
+  const res = await request(app).post('/api/events/1/rsvp').send({ user_id: 'u1', status: 'yes' });
   expect(res.statusCode).toBe(201);
   expect(res.body).toEqual({ id: 1 });
   expect(db.pool.query).toHaveBeenCalledWith(

@@ -16,7 +16,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState([]);
 
   async function load() {
-    const res = await fetch('/users', {
+    const res = await fetch('/api/users', {
       headers: { 'x-user-role': 'admin' }
     });
     if (res.ok) setUsers(await res.json());
@@ -26,7 +26,7 @@ export default function UsersPage() {
 
   async function toggleRole(user) {
     const newRole = user.role === 'admin' ? 'user' : 'admin';
-    const res = await fetch(`/users/${user.id}/role`, {
+    const res = await fetch(`/api/users/${user.id}/role`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

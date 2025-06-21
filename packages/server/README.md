@@ -23,12 +23,12 @@ This creates a basic floor plan in the database.
 
 ## Endpoints
 - `GET /health`
-- CRUD operations for `/desks` and `/bookings`
-- `POST /desks/:id/blocks` and `DELETE /desks/:deskId/blocks/:blockId`
-- `GET /analytics/daily` and `GET /analytics/weekly`
-- `/forecast`, `/recommendation`, `/alerts`
-- `/chatbot`
-- `/users` management routes
+- CRUD operations for `/api/desks` and `/api/bookings`
+- `POST /api/desks/:id/blocks` and `DELETE /api/desks/:deskId/blocks/:blockId`
+- `GET /api/analytics/daily` and `GET /api/analytics/weekly`
+- `/api/forecast`, `/api/recommendation`, `/api/alerts`
+- `/api/chatbot`
+- `/api/users` management routes
 
 ## Tests
 Run unit tests with:

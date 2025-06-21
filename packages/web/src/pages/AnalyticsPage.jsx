@@ -9,9 +9,9 @@ export default function AnalyticsPage() {
   const [weekly, setWeekly] = useState([]);
 
   async function load() {
-    const dRes = await fetch('/analytics/daily');
+    const dRes = await fetch('/api/analytics/daily');
     if (dRes.ok) setDaily(await dRes.json());
-    const wRes = await fetch('/analytics/weekly');
+    const wRes = await fetch('/api/analytics/weekly');
     if (wRes.ok) setWeekly(await wRes.json());
   }
 

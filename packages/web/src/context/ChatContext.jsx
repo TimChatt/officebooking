@@ -11,7 +11,7 @@ export function ChatProvider({ children }) {
     setMessages((m) => [...m, userMsg]);
     setLoading(true);
     try {
-      const res = await fetch('/chatbot', {
+      const res = await fetch('/api/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),

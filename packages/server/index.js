@@ -340,6 +340,22 @@ api.get('/events', async (req, res) => {
   res.json(rows);
 });
 
+// Upcoming events with RSVP counts for the next 7 days
+api.get('/events/upcoming', async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT e.*,\n
+            COUNT(r.id) FILTER (WHERE r.status = 'yes')  AS yes_count,\n
+            COUNT(r.id) FILTER (WHERE r.status = 'maybe') AS maybe_count,\n
+            COUNT(r.id) FILTER (WHERE r.status = 'no')    AS no_count\n
+     FROM events e\n
+     LEFT JOIN rsvps r ON r.event_id = e.id\n
+     WHERE e.event_time >= NOW() AND e.event_time < NOW() + INTERVAL '7 days'\n
+     GROUP BY e.id\n
+     ORDER BY e.event_time`
+  );
+  res.json(rows);
+});
+
 api.get('/events/:id', async (req, res) => {
   const { id } = req.params;
   const { rows } = await pool.query('SELECT * FROM events WHERE id=$1', [id]);

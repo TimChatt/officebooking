@@ -5,12 +5,13 @@ import { Box } from '@mui/material';
 
 export default function CalendarHeatmapChart({ values, onClick }) {
   // values should be array of { date: 'YYYY-MM-DD', count: number }
+  const sorted = [...values].sort((a, b) => a.date.localeCompare(b.date));
   return (
-    <Box sx={{ width: '100%', '& .color-empty': { fill: '#e2e8f0' } }}>
+    <Box sx={{ width: '100%', overflowX: 'auto', '& .color-empty': { fill: '#e2e8f0' } }}>
       <CalendarHeatmap
-        startDate={values.length ? values[0].date : new Date()}
-        endDate={values.length ? values[values.length - 1].date : new Date()}
-        values={values}
+        startDate={sorted.length ? new Date(sorted[0].date) : new Date()}
+        endDate={sorted.length ? new Date(sorted[sorted.length - 1].date) : new Date()}
+        values={sorted}
         classForValue={(val) => {
           if (!val || !val.count) return 'color-empty';
           if (val.count > 5) return 'color-scale-4';

@@ -1,0 +1,30 @@
+:root {
+  --bg: #f1f3f6;
+  --card-bg: #e4e9f2;
+  --accent: #a6b1e1;
+  --shadow-light: 4px 4px 8px #c8d0e7;
+  --shadow-dark: -4px -4px 8px #ffffff;
+  --radius: 12px;
+}
+
+body {
+  background: var(--bg);
+  margin: 0;
+  font-family: sans-serif;
+}
+
+.neumorphic {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light), var(--shadow-dark);
+}
+
+@keyframes bell {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.bell-ring {
+  animation: bell 1s ease-in-out infinite;
+}

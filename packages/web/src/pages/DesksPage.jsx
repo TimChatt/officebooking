@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import Modal from '../components/ui/Modal.jsx';
 import Button from '../components/ui/Button.jsx';
 import { Box, Typography, TextField, MenuItem } from '@mui/material';
+import { Rnd } from 'react-rnd';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 
 // Scale factor for converting desk units to pixels
-const SCALE = 40;
+// Slightly larger for better visibility
+const SCALE = 50;
 const COMPANIES = ['Hawk-Eye', 'Pulselive', 'Beyond Sports', 'KinaTrax', 'Sony Sports'];
 
 export default function DesksPage() {
@@ -23,10 +25,18 @@ export default function DesksPage() {
   const [drag, setDrag] = useState(null);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [bookings, setBookings] = useState([]);
+  const [locked, setLocked] = useState(false);
+  const [objects, setObjects] = useState([]);
+  const [newObject, setNewObject] = useState('Kitchen');
 
   async function load() {
     const res = await fetch('/api/desks');
     if (res.ok) setDesks(await res.json());
+  }
+
+  async function loadObjects() {
+    const res = await fetch('/api/objects');
+    if (res.ok) setObjects(await res.json());
   }
 
   async function loadBookings(date) {
@@ -38,6 +48,7 @@ export default function DesksPage() {
   }
 
   useEffect(() => { load(); }, []);
+  useEffect(() => { loadObjects(); }, []);
   useEffect(() => { loadBookings(selectedDate); }, [selectedDate]);
 
   async function addDesk() {
@@ -56,7 +67,21 @@ export default function DesksPage() {
     load();
   }
 
+  async function addObject() {
+    let label = newObject;
+    if (newObject === 'Custom') {
+      label = prompt('Enter label for object', 'Object') || 'Object';
+    }
+    await fetch('/api/objects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ label, type: newObject, x: 1, y: 1, width: 1, height: 1 })
+    });
+    loadObjects();
+  }
+
   function startDrag(d, e) {
+    if (locked) return;
     e.preventDefault();
     setDrag({
       id: d.id,
@@ -93,11 +118,13 @@ export default function DesksPage() {
       setBooking({ name: 'Anon', team: '', company: COMPANIES[0], date: selectedDate });
       return;
     }
-    await fetch(`/api/desks/${d.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(d)
-    });
+    if (!locked) {
+      await fetch(`/api/desks/${d.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(d)
+      });
+    }
   }
 
   async function submitBooking(e) {
@@ -132,6 +159,25 @@ export default function DesksPage() {
     return 'background.paper';
   }
 
+  async function saveLayout() {
+    await Promise.all([
+      ...desks.map(d =>
+        fetch(`/api/desks/${d.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(d)
+        })
+      ),
+      ...objects.map(o =>
+        fetch(`/api/objects/${o.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(o)
+        })
+      )
+    ]);
+  }
+
   return (
     <Box onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
         <Typography variant="h5" gutterBottom>
@@ -147,8 +193,18 @@ export default function DesksPage() {
           />
         </Box>
 
-        <Box mb={2}>
+        <Box mb={2} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button onClick={() => setShowAdd(true)}>Add New Desk</Button>
+          <TextField select size="small" value={newObject} onChange={(e) => setNewObject(e.target.value)}>
+            {['Kitchen', 'Meeting Room', 'Custom'].map((t) => (
+              <MenuItem key={t} value={t}>{t}</MenuItem>
+            ))}
+          </TextField>
+          <Button onClick={addObject}>Add Object</Button>
+          <Button onClick={() => setLocked(!locked)}>
+            {locked ? 'Unlock Positions' : 'Lock Positions'}
+          </Button>
+          <Button onClick={saveLayout}>Save Desk Layout</Button>
         </Box>
 
         <Box
@@ -187,6 +243,38 @@ export default function DesksPage() {
                 `Desk ${d.id}`
               )}
             </Box>
+          ))}
+          {objects.map((o) => (
+            <Rnd
+              key={`obj-${o.id}`}
+              size={{ width: o.width * SCALE, height: o.height * SCALE }}
+              position={{ x: o.x * SCALE, y: o.y * SCALE }}
+              bounds="parent"
+              onDragStop={(e, d) => {
+                setObjects(os => os.map(obj => obj.id === o.id ? { ...obj, x: Math.round(d.x / SCALE), y: Math.round(d.y / SCALE) } : obj));
+              }}
+              onResizeStop={(e, dir, ref, delta, position) => {
+                setObjects(os => os.map(obj => obj.id === o.id ? {
+                  ...obj,
+                  width: Math.round(ref.offsetWidth / SCALE),
+                  height: Math.round(ref.offsetHeight / SCALE),
+                  x: Math.round(position.x / SCALE),
+                  y: Math.round(position.y / SCALE)
+                } : obj));
+              }}
+              enableResizing={!locked}
+              disableDragging={locked}
+              style={{
+                border: '1px dashed #666',
+                backgroundColor: '#e0f7fa',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 12,
+              }}
+            >
+              {o.label}
+            </Rnd>
           ))}
         </Box>
 

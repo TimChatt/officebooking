@@ -127,6 +127,50 @@ api.delete('/desks/:deskId/blocks/:blockId', async (req, res) => {
   res.json(rows[0]);
 });
 
+// Objects
+api.get('/objects', async (req, res) => {
+  const { rows } = await pool.query('SELECT * FROM objects ORDER BY id');
+  res.json(rows);
+});
+
+api.post('/objects', async (req, res) => {
+  const { label, type, x, y, width, height } = req.body;
+  if (!label || !type || [x, y, width, height].some((v) => typeof v !== 'number')) {
+    return res.status(400).json({ error: 'invalid object fields' });
+  }
+  const { rows } = await pool.query(
+    `INSERT INTO objects (label, type, x, y, width, height)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [label, type, x, y, width, height]
+  );
+  res.status(201).json(rows[0]);
+});
+
+api.put('/objects/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  const { label, type, x, y, width, height } = req.body;
+  if (!label || !type || [x, y, width, height].some((v) => typeof v !== 'number')) {
+    return res.status(400).json({ error: 'invalid object fields' });
+  }
+  const { rows } = await pool.query(
+    `UPDATE objects SET label=$1, type=$2, x=$3, y=$4, width=$5, height=$6
+     WHERE id=$7 RETURNING *`,
+    [label, type, x, y, width, height, id]
+  );
+  if (!rows.length) return res.status(404).json({ error: 'object not found' });
+  res.json(rows[0]);
+});
+
+api.delete('/objects/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  const { rows } = await pool.query(
+    'DELETE FROM objects WHERE id=$1 RETURNING *',
+    [id]
+  );
+  if (!rows.length) return res.status(404).json({ error: 'object not found' });
+  res.json(rows[0]);
+});
+
 // Bookings
 api.get('/bookings', async (req, res) => {
   const { start, end } = req.query;

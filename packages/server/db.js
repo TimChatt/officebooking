@@ -19,6 +19,15 @@ async function init() {
       height INTEGER NOT NULL,
       status VARCHAR(20) DEFAULT 'available'
     );
+    CREATE TABLE IF NOT EXISTS objects (
+      id SERIAL PRIMARY KEY,
+      label VARCHAR(255) NOT NULL,
+      type VARCHAR(50) NOT NULL,
+      x INTEGER NOT NULL,
+      y INTEGER NOT NULL,
+      width INTEGER NOT NULL,
+      height INTEGER NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS bookings (
       id SERIAL PRIMARY KEY,
       user_id VARCHAR(255) NOT NULL,

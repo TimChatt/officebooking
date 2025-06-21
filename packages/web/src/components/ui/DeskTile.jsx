@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, Typography, Tooltip } from '@mui/material';
+import ChairIcon from '@mui/icons-material/Chair';
 
 export default function DeskTile({
   desk,
@@ -13,42 +14,58 @@ export default function DeskTile({
 }) {
   const info = getDeskInfo(desk.id);
   const isDragging = drag && drag.id === desk.id;
+  const isBooked = info.status === 'booked';
+  const isMine = info.status === 'mine';
 
   return (
-    <Box
-      onMouseDown={(e) => onStartDrag(desk, e)}
-      sx={{
-        position: 'absolute',
-        left: desk.x * scale,
-        top: desk.y * scale,
-        width: desk.width * scale,
-        height: desk.height * scale,
-        bgcolor: deskColor(info.status),
-        border: isDragging ? '2px dashed #4f46e5' : '1px solid #cbd5e1',
-        fontSize: 12,
-        fontWeight: 500,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 1,
-        cursor: locked ? 'default' : 'move',
-        boxShadow: 1,
-        '&:hover': {
-          boxShadow: 3,
-          borderColor: '#4f46e5',
-        },
-        userSelect: 'none',
-        transition: 'all 0.2s ease-in-out',
-      }}
+    <Tooltip
+      title={
+        info.booking
+          ? `${info.booking.name} (${info.booking.team})`
+          : `Desk ${desk.id} — Available`
+      }
+      arrow
     >
-      {info.booking ? (
+      <Box
+        onMouseDown={(e) => onStartDrag(desk, e)}
+        sx={{
+          position: 'absolute',
+          left: desk.x * scale,
+          top: desk.y * scale,
+          width: desk.width * scale,
+          height: desk.height * scale,
+          bgcolor: deskColor(info.status),
+          border: isDragging ? '2px dashed #4f46e5' : '1px solid #cbd5e1',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '8px',
+          cursor: locked ? 'default' : 'move',
+          boxShadow: isDragging ? 4 : 1,
+          userSelect: 'none',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: 4,
+            borderColor: '#4f46e5',
+          },
+        }}
+      >
         <Box sx={{ textAlign: 'center' }}>
-          <div>{info.booking.name}</div>
-          <div style={{ fontSize: 10 }}>{info.booking.team}</div>
+          <ChairIcon
+            sx={{
+              color: isBooked ? '#d32f2f' : isMine ? '#388e3c' : '#333',
+              fontSize: 28,
+              mb: 0.5,
+            }}
+          />
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 500, fontSize: 11, color: '#333' }}
+          >
+            Desk {desk.id}
+          </Typography>
         </Box>
-      ) : (
-        `Desk ${desk.id}`
-      )}
-    </Box>
+      </Box>
+    </Tooltip>
   );
 }

@@ -35,7 +35,7 @@ export default function Layout({ children }) {
       sx={{
         width: drawerWidth,
         height: '100%',
-        bgcolor: '#ffffff',
+        bgcolor: '#f4f5f7',
         borderRight: '1px solid #e0e0e0',
         display: 'flex',
         flexDirection: 'column',
@@ -70,11 +70,18 @@ export default function Layout({ children }) {
                   color: '#1f1f1f',
                   transition: 'all 0.2s ease-in-out',
                   '&:hover': {
-                    bgcolor: '#eef2ff',
+                    bgcolor: '#e8ebfd',
                   },
                 }}
               >
-                <ListItemIcon sx={{ color: '#4f46e5', minWidth: '36px' }}>
+                <ListItemIcon
+                  sx={{
+                    color: '#4f46e5',
+                    minWidth: '36px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                  }}
+                >
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText primary={item.name} />
@@ -87,85 +94,85 @@ export default function Layout({ children }) {
   );
 
   return (
-    <Box sx={{ background: 'radial-gradient(circle at top left, #eef2ff, #ffffff)', minHeight: '100vh' }}>
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <AppBar
-          position="fixed"
-          elevation={1}
-          sx={{
-            zIndex: (t) => t.zIndex.drawer + 1,
-            bgcolor: '#ffffff',
-            color: '#1f1f1f',
-            borderBottom: '1px solid #e0e0e0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-            px: 3,
-          }}
-        >
-          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                color="inherit"
-                edge="start"
-                onClick={() => setOpen(true)}
-                sx={{ mr: 2, display: { md: 'none' } }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="h6" fontWeight={700}>
-                Office Booking
-              </Typography>
-            </Box>
-          </Toolbar>
-        </AppBar>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f8f9fc' }}>
+      <AppBar
+        position="fixed"
+        elevation={3}
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1,
+          bgcolor: '#ffffff',
+          color: '#1f1f1f',
+          borderBottom: '1px solid #e0e0e0',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          px: 3,
+        }}
+      >
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={() => setOpen(true)}
+              sx={{ mr: 2, display: { md: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" fontWeight={700}>
+              Office Booking
+            </Typography>
+          </Box>
+          <Box>
+            {/* Avatar or Settings icons can go here */}
+          </Box>
+        </Toolbar>
+      </AppBar>
 
-        <Drawer
-          variant="temporary"
-          open={open}
-          onClose={() => setOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{ display: { xs: 'block', md: 'none' } }}
-        >
-          {drawer}
-        </Drawer>
+      <Drawer
+        variant="temporary"
+        open={open}
+        onClose={() => setOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{ display: { xs: 'block', md: 'none' } }}
+      >
+        {drawer}
+      </Drawer>
 
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              bgcolor: '#ffffff',
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            bgcolor: '#f4f5f7',
+          },
+        }}
+        open
+      >
+        {drawer}
+      </Drawer>
 
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            mt: 2,
-            p: 4,
-            ml: { md: `${drawerWidth}px` },
-            borderRadius: '24px',
-            background: 'linear-gradient(145deg, #ffffff, #f4f4f6)',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.05)',
-            minHeight: 'calc(100vh - 64px)',
-            transition: 'all 0.3s ease-in-out',
-            border: '1px solid #e0e0e0',
-          }}
-        >
-          <Toolbar />
-          {children}
-        </Box>
-
-        <ChatButton onClick={() => setChatOpen(true)} />
-        <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          mt: 2,
+          p: 4,
+          ml: { md: `${drawerWidth}px` },
+          borderRadius: '20px',
+          background: '#ffffff',
+          minHeight: 'calc(100vh - 64px)',
+          transition: 'all 0.3s ease-in-out',
+          boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.05)',
+        }}
+      >
+        <Toolbar />
+        {children}
       </Box>
+
+      <ChatButton onClick={() => setChatOpen(true)} />
+      <ChatOverlay open={chatOpen} onClose={() => setChatOpen(false)} />
     </Box>
   );
 }

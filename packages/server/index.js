@@ -420,6 +420,68 @@ api.get('/analytics/weekly', async (req, res) => {
   res.json(rows);
 });
 
+// Daily heatmap counts for the past N days (default 90)
+api.get('/analytics/heatmap', async (req, res) => {
+  const days = Number(req.query.days || 90);
+  const { rows } = await pool.query(
+    `SELECT date_trunc('day', start_time) AS day, COUNT(*) AS bookings
+     FROM bookings
+     WHERE start_time >= NOW() - $1 * INTERVAL '1 day'
+     GROUP BY day
+     ORDER BY day`,
+    [days]
+  );
+  res.json(rows);
+});
+
+// Aggregate bookings by team and company
+api.get('/analytics/team', async (req, res) => {
+  const { start, end } = req.query;
+  const conditions = [];
+  const values = [];
+  let idx = 1;
+  if (start && end) {
+    conditions.push(`start_time >= $${idx} AND start_time < $${idx + 1}`);
+    values.push(start, end);
+    idx += 2;
+  }
+  let query =
+    'SELECT team, company, COUNT(*) AS bookings FROM bookings';
+  if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
+  query += ' GROUP BY team, company ORDER BY bookings DESC';
+  const { rows } = await pool.query(query, values);
+  res.json(rows);
+});
+
+// Desk usage counts for floorplan heatmap
+api.get('/analytics/floorplan', async (req, res) => {
+  const days = Number(req.query.days || 30);
+  const { rows } = await pool.query(
+    `SELECT desk_id, COUNT(*) AS bookings
+     FROM bookings
+     WHERE start_time >= NOW() - $1 * INTERVAL '1 day'
+     GROUP BY desk_id`,
+    [days]
+  );
+  res.json(rows);
+});
+
+// Peak booking times by day of week and hour
+api.get('/analytics/peaks', async (req, res) => {
+  const days = Number(req.query.days || 30);
+  const { rows } = await pool.query(
+    `SELECT extract(dow from start_time) AS dow,
+            extract(hour from start_time) AS hour,
+            COUNT(*) AS bookings
+     FROM bookings
+     WHERE start_time >= NOW() - $1 * INTERVAL '1 day'
+     GROUP BY dow, hour
+     ORDER BY dow, hour`,
+    [days]
+  );
+  res.json(rows);
+});
+
 api.get('/recommendation', async (req, res) => {
   const { rows } = await pool.query(
     `SELECT d.* FROM desks d

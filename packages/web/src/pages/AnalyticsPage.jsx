@@ -2,16 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar } from 'recharts';
 import Card from '../components/ui/Card.jsx';
 import { Box, Typography, Grid, Paper } from '@mui/material';
+import CalendarHeatmapChart from '../components/CalendarHeatmap.jsx';
+import TeamUsageCharts from '../components/TeamUsageCharts.jsx';
+import UtilizationTrends from '../components/UtilizationTrends.jsx';
+import FloorplanAnalytics from '../components/FloorplanAnalytics.jsx';
+import PeakTimesHeatmap from '../components/PeakTimesHeatmap.jsx';
 
 export default function AnalyticsPage() {
   const [daily, setDaily] = useState([]);
   const [weekly, setWeekly] = useState([]);
+  const [heatmap, setHeatmap] = useState([]);
+  const [teamUsage, setTeamUsage] = useState([]);
 
   async function load() {
     const dRes = await fetch('/api/analytics/daily');
     if (dRes.ok) setDaily(await dRes.json());
     const wRes = await fetch('/api/analytics/weekly');
     if (wRes.ok) setWeekly(await wRes.json());
+    const hRes = await fetch('/api/analytics/heatmap');
+    if (hRes.ok) setHeatmap(await hRes.json());
+    const tRes = await fetch('/api/analytics/team');
+    if (tRes.ok) setTeamUsage(await tRes.json());
   }
 
   useEffect(() => {
@@ -51,20 +62,12 @@ export default function AnalyticsPage() {
               <Typography variant="h6" gutterBottom>
                 Daily Bookings
               </Typography>
-            <LineChart
-              width={450}
-              height={200}
+            <UtilizationTrends
               data={daily.map(d => ({
                 day: new Date(d.day).toLocaleDateString(),
-                bookings: d.bookings
+                bookings: Number(d.bookings)
               }))}
-            >
-              <CartesianGrid stroke="#e2e8f0" />
-              <XAxis dataKey="day" fontSize={12} />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="bookings" stroke="#2563eb" strokeWidth={2} />
-            </LineChart>
+            />
             </Paper>
           </Grid>
 
@@ -87,6 +90,40 @@ export default function AnalyticsPage() {
               <Tooltip />
               <Bar dataKey="bookings" fill="#16a34a" />
             </BarChart>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Usage Heatmap
+              </Typography>
+              <CalendarHeatmapChart
+                values={heatmap.map(h => ({ date: h.day.slice(0,10), count: Number(h.bookings) }))}
+              />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Usage by Team & Company
+              </Typography>
+              <TeamUsageCharts data={teamUsage} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Floorplan Utilization (30 days)
+              </Typography>
+              <FloorplanAnalytics />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                Peak Times by Day
+              </Typography>
+              <PeakTimesHeatmap />
             </Paper>
           </Grid>
         </Grid>

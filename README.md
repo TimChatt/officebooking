@@ -44,7 +44,7 @@ npm start
 
 ## Features
 - Manage desks and bookings with authentication
-- Analytics endpoints for daily and weekly counts
+- Rich analytics including heatmaps, team reports and peak time graphs
 - Desk recommendation and forecast-based alerts
 - Optional email/SMS notifications and chatbot support
 

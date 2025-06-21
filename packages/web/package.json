@@ -21,6 +21,7 @@
     "@mui/x-date-pickers": "^6.16.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.9",
+    "framer-motion": "^10.16.3",
     "lucide-react": "^0.339.0",
     "react": "^18.2.0",
     "react-calendar-heatmap": "^1.10.0",

@@ -3,7 +3,12 @@ import React, { createContext, useContext, useState } from 'react';
 const ChatContext = createContext();
 
 export function ChatProvider({ children }) {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      from: 'bot',
+      content: "Hi there! I'm your Booking Assistant \ud83d\udc4b \u2014 how can I help you today?",
+    },
+  ]);
   const [loading, setLoading] = useState(false);
 
   async function sendMessage(text) {

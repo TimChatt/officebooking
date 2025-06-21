@@ -28,3 +28,32 @@ body {
 .bell-ring {
   animation: bell 1s ease-in-out infinite;
 }
+
+.chat-trigger {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg);
+  box-shadow: var(--shadow-light), var(--shadow-dark);
+  cursor: pointer;
+  border: none;
+}
+
+.chat-trigger:hover {
+  box-shadow: 0 0 0 2px var(--accent) inset, var(--shadow-light), var(--shadow-dark);
+}
+
+.chat-window {
+  width: 320px;
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  font-size: 14px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-light), var(--shadow-dark);
+}

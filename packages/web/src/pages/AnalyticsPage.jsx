@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar } from 'recharts';
+import { BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import Card from '../components/ui/Card.jsx';
 import { Box, Typography, Grid, Paper } from '@mui/material';
 import CalendarHeatmapChart from '../components/CalendarHeatmap.jsx';
@@ -76,20 +76,18 @@ export default function AnalyticsPage() {
               <Typography variant="h6" gutterBottom>
                 Weekly Bookings
               </Typography>
-            <BarChart
-              width={450}
-              height={200}
-              data={weekly.map(w => ({
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={weekly.map(w => ({
                 week: new Date(w.week).toLocaleDateString(),
                 bookings: w.bookings
-              }))}
-            >
-              <CartesianGrid stroke="#e2e8f0" />
-              <XAxis dataKey="week" fontSize={12} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="bookings" fill="#16a34a" />
-            </BarChart>
+              }))}>
+                <CartesianGrid stroke="#e2e8f0" />
+                <XAxis dataKey="week" fontSize={12} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="bookings" fill="#16a34a" />
+              </BarChart>
+            </ResponsiveContainer>
             </Paper>
           </Grid>
           <Grid item xs={12} md={12}>

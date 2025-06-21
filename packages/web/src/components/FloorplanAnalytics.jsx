@@ -20,8 +20,11 @@ export default function FloorplanAnalytics() {
     return '#a7f3d0';
   }
 
+  const width = Math.max(0, ...desks.map(d => d.x + d.width)) * SCALE;
+  const height = Math.max(0, ...desks.map(d => d.y + d.height)) * SCALE;
+
   return (
-    <Box sx={{ position: 'relative', width: '100%', height: 300, border: '1px solid #ddd', borderRadius: 1 }}>
+    <Box sx={{ position: 'relative', width, height, maxWidth: '100%', overflow: 'auto', border: '1px solid #ddd', borderRadius: 1 }}>
       {desks.map(d => (
         <Box key={d.id}
           sx={{

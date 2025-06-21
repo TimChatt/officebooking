@@ -12,7 +12,6 @@ import {
   ListItemText,
   IconButton,
   Box,
-  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChatButton from './ChatButton.jsx';
@@ -64,13 +63,20 @@ export default function Layout({ children }) {
                 href={item.href}
                 sx={{
                   borderRadius: '12px',
-                  color: '#333',
+                  px: 2.5,
+                  py: 1.5,
+                  fontWeight: 500,
+                  fontSize: '15px',
+                  color: '#1f1f1f',
+                  transition: 'all 0.2s ease-in-out',
                   '&:hover': {
-                    bgcolor: '#e8eaf6',
+                    bgcolor: '#eef2ff',
                   },
                 }}
               >
-                <ListItemIcon sx={{ color: '#4f46e5' }}>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={{ color: '#4f46e5', minWidth: '36px' }}>
+                  {item.icon}
+                </ListItemIcon>
                 <ListItemText primary={item.name} />
               </ListItemButton>
             </ListItem>
@@ -81,29 +87,36 @@ export default function Layout({ children }) {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f0f2f5' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f8f9fc' }}>
       <AppBar
         position="fixed"
-        elevation={0}
+        elevation={1}
         sx={{
           zIndex: (t) => t.zIndex.drawer + 1,
           bgcolor: '#ffffff',
-          color: '#333',
+          color: '#1f1f1f',
           borderBottom: '1px solid #e0e0e0',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          px: 3,
         }}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={() => setOpen(true)}
-            sx={{ mr: 2, display: { md: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Office Booking
-          </Typography>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={() => setOpen(true)}
+              sx={{ mr: 2, display: { md: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" fontWeight={700}>
+              Office Booking
+            </Typography>
+          </Box>
+          <Box>
+            {/* You can add avatar, settings, or a search input here later */}
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -137,8 +150,12 @@ export default function Layout({ children }) {
         component="main"
         sx={{
           flexGrow: 1,
+          mt: 2,
           p: 4,
           ml: { md: `${drawerWidth}px` },
+          borderRadius: '16px',
+          background: '#ffffff',
+          minHeight: 'calc(100vh - 64px)',
           transition: 'all 0.3s ease-in-out',
         }}
       >

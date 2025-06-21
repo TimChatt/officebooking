@@ -29,10 +29,26 @@ def fetch_daily_counts(days=30):
 
 
 def compute_forecast(counts, horizon=7):
+    """Return a 7 day forecast based on day-of-week averages."""
     if not counts:
         return [0] * horizon
-    avg = sum(c[1] for c in counts) / len(counts)
-    return [round(avg) for _ in range(horizon)]
+
+    # group counts by day of week
+    dow_totals = {i: [] for i in range(7)}
+    for day, cnt in counts:
+        dow_totals[day.weekday()].append(cnt)
+
+    dow_avgs = {
+        dow: (sum(vals) / len(vals)) if vals else 0
+        for dow, vals in dow_totals.items()
+    }
+
+    start_date = datetime.utcnow().date() + timedelta(days=1)
+    preds = []
+    for i in range(horizon):
+        dow = (start_date + timedelta(days=i)).weekday()
+        preds.append(round(dow_avgs.get(dow, 0)))
+    return preds
 
 
 @app.get("/forecast")

@@ -53,8 +53,14 @@ async function init() {
       id SERIAL PRIMARY KEY,
       auth0_id VARCHAR(255) UNIQUE NOT NULL,
       email VARCHAR(255) NOT NULL,
-      role VARCHAR(20) DEFAULT 'user'
+      role VARCHAR(20) DEFAULT 'user',
+      name VARCHAR(255),
+      slack_webhook TEXT,
+      google_api_key TEXT
     );
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255);
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS slack_webhook TEXT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS google_api_key TEXT;
     CREATE TABLE IF NOT EXISTS analytics (
       id SERIAL PRIMARY KEY,
       event_type VARCHAR(50) NOT NULL,
@@ -134,6 +140,38 @@ async function updateUserRole(id, role) {
   return rows[0];
 }
 
+async function getUserSettings(auth0_id) {
+  const { rows } = await pool.query(
+    'SELECT name, email, slack_webhook, google_api_key FROM users WHERE auth0_id=$1',
+    [auth0_id]
+  );
+  return rows[0] || null;
+}
+
+async function saveUserProfile(auth0_id, name, email) {
+  const { rows } = await pool.query(
+    `INSERT INTO users (auth0_id, name, email)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (auth0_id)
+     DO UPDATE SET name=EXCLUDED.name, email=EXCLUDED.email
+     RETURNING name, email, slack_webhook, google_api_key`,
+    [auth0_id, name, email]
+  );
+  return rows[0];
+}
+
+async function saveUserIntegrations(auth0_id, slack_webhook, google_api_key) {
+  const { rows } = await pool.query(
+    `INSERT INTO users (auth0_id, slack_webhook, google_api_key)
+     VALUES ($1, $2, $3)
+     ON CONFLICT (auth0_id)
+     DO UPDATE SET slack_webhook=EXCLUDED.slack_webhook, google_api_key=EXCLUDED.google_api_key
+     RETURNING name, email, slack_webhook, google_api_key`,
+    [auth0_id, slack_webhook, google_api_key]
+  );
+  return rows[0];
+}
+
 async function updateBooking(id, fields) {
   const keys = [];
   const values = [];
@@ -175,6 +213,9 @@ module.exports = {
   getUserRole,
   getUsers,
   updateUserRole,
+  getUserSettings,
+  saveUserProfile,
+  saveUserIntegrations,
   updateBooking,
   deleteBooking,
   deleteDesk,

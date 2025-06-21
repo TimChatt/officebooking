@@ -1,6 +1,7 @@
 # Forecast Service
 
 Simple FastAPI service that predicts bookings for the next week.
+The prediction is based on average bookings for each day of the week.
 It connects to the same Postgres database used by the server.
 
 Set `DATABASE_URL` in your environment and install the dependencies:

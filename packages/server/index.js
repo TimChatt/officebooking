@@ -128,12 +128,30 @@ app.delete('/desks/:deskId/blocks/:blockId', async (req, res) => {
 
 // Bookings
 app.get('/bookings', async (req, res) => {
+  const { start, end } = req.query;
+  if (start && end) {
+    const { rows } = await pool.query(
+      'SELECT * FROM bookings WHERE NOT ($2 <= start_time OR $1 >= end_time) ORDER BY start_time DESC',
+      [start, end]
+    );
+    return res.json(rows);
+  }
   const { rows } = await pool.query('SELECT * FROM bookings ORDER BY start_time DESC');
   res.json(rows);
 });
 
 app.post('/bookings', async (req, res) => {
-  const { user_id, desk_id, start_time, end_time } = req.body;
+  const {
+    user_id,
+    desk_id,
+    start_time,
+    end_time,
+    name = null,
+    team = null,
+    company = null,
+    repeat = null,
+  } = req.body;
+
   if (!user_id || !desk_id || !start_time || !end_time) {
     return res.status(400).json({ error: 'missing fields' });
   }
@@ -142,40 +160,57 @@ app.post('/bookings', async (req, res) => {
     return res.status(400).json({ error: 'invalid time range' });
   }
 
+  const bookingLimit = parseInt(process.env.BOOKING_LIMIT || '0', 10);
+  const created = [];
+  const repeatCount = repeat === 'weekly' ? 4 : 1;
+  let s = new Date(start_time);
+  let e = new Date(end_time);
+  const recurringId = repeat ? require('crypto').randomUUID() : null;
 
-  const [blockConflicts, conflicts] = await Promise.all([
-    pool.query(
-      `SELECT 1 FROM desk_blocks
-       WHERE desk_id=$1 AND NOT ($3 <= start_time OR $2 >= end_time)`,
-      [desk_id, start_time, end_time]
-    ),
-    pool.query(
-      `SELECT 1 FROM bookings
-       WHERE desk_id=$1 AND NOT ($3 <= start_time OR $2 >= end_time)`,
-      [desk_id, start_time, end_time]
-    ),
-  ]);
+  for (let i = 0; i < repeatCount; i++) {
+    const [blockConflicts, conflicts] = await Promise.all([
+      pool.query(
+        `SELECT 1 FROM desk_blocks WHERE desk_id=$1 AND NOT ($3 <= start_time OR $2 >= end_time)`,
+        [desk_id, s.toISOString(), e.toISOString()]
+      ),
+      pool.query(
+        `SELECT 1 FROM bookings WHERE desk_id=$1 AND NOT ($3 <= start_time OR $2 >= end_time)`,
+        [desk_id, s.toISOString(), e.toISOString()]
+      ),
+    ]);
 
-  if (blockConflicts.rows.length)
-    return res.status(409).json({ error: 'desk blocked for that time' });
-  if (conflicts.rows.length)
-    return res.status(409).json({ error: 'desk already booked' });
+    if (blockConflicts.rows.length)
+      return res.status(409).json({ error: 'desk blocked for that time' });
+    if (conflicts.rows.length)
+      return res.status(409).json({ error: 'desk already booked' });
 
-  const { rows } = await pool.query(
-    `INSERT INTO bookings (user_id, desk_id, start_time, end_time)
-     VALUES ($1, $2, $3, $4) RETURNING *`,
-    [user_id, desk_id, start_time, end_time]
-  );
+    if (bookingLimit) {
+      const { rows: cntRows } = await pool.query(
+        `SELECT COUNT(*) FROM bookings WHERE user_id=$1 AND start_time >= date_trunc('week', $2::timestamptz) AND start_time < date_trunc('week', $2::timestamptz) + interval '1 week'`,
+        [user_id, s.toISOString()]
+      );
+      if (Number(cntRows[0].count) >= bookingLimit)
+        return res.status(409).json({ error: 'booking limit reached' });
+    }
 
-  await logEvent('booking_created', { user_id, desk_id, start_time, end_time });
+    const { rows } = await pool.query(
+      `INSERT INTO bookings (user_id, desk_id, start_time, end_time, name, team, company, recurring_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [user_id, desk_id, s.toISOString(), e.toISOString(), name, team, company, recurringId]
+    );
+    await logEvent('booking_created', { user_id, desk_id, start_time: s, end_time: e });
+    created.push(rows[0]);
+    s = new Date(s.getTime() + 7 * 24 * 3600 * 1000);
+    e = new Date(e.getTime() + 7 * 24 * 3600 * 1000);
+  }
 
-  res.status(201).json(rows[0]);
+  res.status(201).json(repeatCount === 1 ? created[0] : created);
 });
 
 app.put('/bookings/:id', async (req, res) => {
   const id = Number(req.params.id);
-  const { desk_id, start_time, end_time } = req.body;
-  if (!desk_id && !start_time && !end_time) {
+  const { desk_id, start_time, end_time, name, team, company } = req.body;
+  if (!desk_id && !start_time && !end_time && !name && !team && !company) {
     return res.status(400).json({ error: 'no fields to update' });
   }
 
@@ -208,15 +243,25 @@ app.put('/bookings/:id', async (req, res) => {
   if (conflicts.rows.length)
     return res.status(409).json({ error: 'desk already booked' });
 
-  const booking = await updateBooking(id, { desk_id, start_time, end_time });
+  const booking = await updateBooking(id, { desk_id, start_time, end_time, name, team, company });
   res.json(booking);
 });
 
 app.delete('/bookings/:id', async (req, res) => {
   const id = Number(req.params.id);
-  const booking = await deleteBooking(id);
-  if (!booking) return res.status(404).json({ error: 'booking not found' });
-  res.json(booking);
+  const future = req.query.future === 'true';
+  const { rows } = await pool.query('SELECT * FROM bookings WHERE id=$1', [id]);
+  if (!rows.length) return res.status(404).json({ error: 'booking not found' });
+  const booking = rows[0];
+  if (future && booking.recurring_id) {
+    const { rows: del } = await pool.query(
+      'DELETE FROM bookings WHERE recurring_id=$1 AND start_time >= $2 RETURNING *',
+      [booking.recurring_id, booking.start_time]
+    );
+    return res.json(del);
+  }
+  const deleted = await deleteBooking(id);
+  res.json(deleted);
 });
 
 // Events

@@ -578,6 +578,17 @@ api.post('/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'missing message' });
 
+  // Quick small talk responses
+  if (/^(hi|hello|hey)\b/i.test(message)) {
+    return res.json({ reply: "Hello! I'm your Booking Assistant. How can I help you?" });
+  }
+  if (/who are you/i.test(message)) {
+    return res.json({ reply: "I'm the Booking Assistant here to help manage desks and bookings." });
+  }
+  if (/thank/i.test(message)) {
+    return res.json({ reply: "You're welcome!" });
+  }
+
   // Basic lookup for bookings by team or person before hitting OpenAI
   const teamMatch = message.match(/team\s+([\w-]+)/i);
   const personMatch = message.match(/(?:user|person|name)\s+([\w-]+)/i);
@@ -611,7 +622,14 @@ api.post('/chatbot', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message }],
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are the Booking Assistant, a friendly chatbot that helps with office bookings. Reply concisely and helpfully, using the occasional emoji for clarity.',
+          },
+          { role: 'user', content: message },
+        ],
         max_tokens: 100,
       }),
     });

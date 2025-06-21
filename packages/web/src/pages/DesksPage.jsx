@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
 import Modal from '../components/ui/Modal.jsx';
 import Button from '../components/ui/Button.jsx';
 import { Box, Typography, TextField, MenuItem } from '@mui/material';
@@ -134,8 +133,7 @@ export default function DesksPage() {
   }
 
   return (
-    <Layout>
-      <Box onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
+    <Box onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}>
         <Typography variant="h5" gutterBottom>
           Floor Plan
         </Typography>
@@ -228,6 +226,5 @@ export default function DesksPage() {
         </Box>
         </Modal>
       </Box>
-    </Layout>
   );
 }

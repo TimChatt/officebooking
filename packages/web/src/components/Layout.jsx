@@ -26,8 +26,10 @@ const navItems = [
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
 
+  const drawerWidth = 240;
+
   const drawer = (
-    <Box sx={{ width: 240 }} onClick={() => setOpen(false)} role="presentation">
+    <Box sx={{ width: drawerWidth }} onClick={() => setOpen(false)} role="presentation">
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
           Office Booking
@@ -76,13 +78,14 @@ export default function Layout({ children }) {
         variant="permanent"
         sx={{
           display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { width: 240, boxSizing: 'border-box' },
+          flexShrink: 0,
+          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' },
         }}
         open
       >
         {drawer}
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, ml: { md: `${drawerWidth}px` } }}>
         <Toolbar />
         {children}
       </Box>

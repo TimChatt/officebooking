@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
 import Button from '../components/ui/Button.jsx';
 import {
   Box,
@@ -31,8 +30,7 @@ export default function AlertsPage() {
   const resendSms = () => load();
 
   return (
-    <Layout>
-      <Box>
+    <Box>
         <Typography variant="h5" gutterBottom>
           Alerts
         </Typography>
@@ -63,6 +61,5 @@ export default function AlertsPage() {
           </Table>
         </Paper>
       </Box>
-    </Layout>
   );
 }

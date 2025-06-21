@@ -11,13 +11,13 @@ RUN apt-get update && \
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:${PATH}"
 
-# Copy everything needed for monorepo
+# Copy everything in the monorepo
 COPY . .
 
 # Install Node.js dependencies
 RUN npm install --legacy-peer-deps --no-audit --prefer-online
 
-# Build the frontend (this triggers Vite and Tailwind)
+# Build the frontend
 RUN npm --workspace packages/web run build
 
 # Install Python dependencies
@@ -27,21 +27,23 @@ RUN pip install --no-cache-dir -r packages/forecast/requirements.txt
 FROM node:20-slim AS runner
 WORKDIR /app
 
-# Install Python runtime to support virtualenv
+# Install Python runtime to support the virtual environment
 RUN apt-get update && \
     apt-get install -y python3 python3-venv && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy build artifacts and environment
-COPY --from=builder /app ./
+# Copy built app and runtime dependencies
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/packages/web/dist ./packages/web/dist
 COPY --from=builder /venv /venv
 
-# Ensure virtualenv is available
+# Ensure virtual environment is on PATH
 ENV PATH="/venv/bin:${PATH}"
 
-# Expose frontend and backend ports
+# Expose ports for web and forecast services
 EXPOSE 3000 8000
 
-# Default command
+# Start server
 CMD ["npm", "start"]
 
